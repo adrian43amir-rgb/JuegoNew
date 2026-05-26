@@ -29,3 +29,19 @@ CREATE TABLE Items (
     CostRyos INT NOT NULL,
     IsSoulbound BIT DEFAULT 0
 );
+
+-- Tabla de Evoluciones de Clases
+CREATE TABLE ClassEvolutions (
+    EvolutionID INT PRIMARY KEY,
+    BaseClassID INT NOT NULL FOREIGN KEY REFERENCES BaseClasses(ClassID),
+    EvolutionName VARCHAR(50) NOT NULL,
+    BonusHP INT DEFAULT 0,
+    BonusATK INT DEFAULT 0,
+    BonusDEF INT DEFAULT 0,
+    BonusMAG INT DEFAULT 0,
+    HP_MultPerVit DECIMAL(3,2) DEFAULT 10.00,
+    ATK_MultPerStr DECIMAL(3,2) DEFAULT 2.00,
+    ATK_MultPerAgi DECIMAL(3,2) DEFAULT 1.00,
+    DEF_MultPerAgi DECIMAL(3,2) DEFAULT 0.50,
+    MAG_MultPerSpr DECIMAL(3,2) DEFAULT 2.00
+);
