@@ -27,8 +27,14 @@ def init_db():
             EquipWeapon INTEGER DEFAULT NULL,
             EquipArmor INTEGER DEFAULT NULL,
             CritRate INTEGER DEFAULT 5,
-            CritDmg REAL DEFAULT 1.5
+            CritDmg REAL DEFAULT 1.5,
+            STR INTEGER DEFAULT 10,
+            AGI INTEGER DEFAULT 10,
+            DEX INTEGER DEFAULT 10,
+            Accuracy INTEGER DEFAULT 80,
+            Evasion INTEGER DEFAULT 5
         )""")
+
 
         c.execute("""CREATE TABLE IF NOT EXISTS WeaponStats(
             ItemID INTEGER PRIMARY KEY,
@@ -84,7 +90,6 @@ def init_db():
                 IsBoss INTEGER
             )''')
 
-
         c.execute("""CREATE TABLE IF NOT EXISTS MonsterDrops(
             DropID INTEGER PRIMARY KEY AUTOINCREMENT,
             MonsterID INTEGER, ItemID INTEGER, DropRate INTEGER,
@@ -111,7 +116,8 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Classes VALUES (2, 'Mago')")
         c.execute("INSERT OR IGNORE INTO Classes VALUES (3, 'Arquero')")
         c.execute("INSERT OR IGNORE INTO Cities VALUES (1, 'Villa Amanecer')")
-                # ==================== ZONA 1: BOSQUE AMANECER | NV 1-5 ====================
+        
+        # ==================== ZONA 1: BOSQUE AMANECER | NV 1-5 ====================
         c.execute("INSERT OR IGNORE INTO Zones VALUES (1, 'Bosque Amanecer', 1, 5, 10, 10, 20)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (300, 'Gel Viscoso', 'Material', 5)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (301, 'Colmillo de Lobo', 'Material', 8)")
@@ -129,12 +135,11 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 1, 300, 60)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 2, 301, 50)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 2, 302, 30)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 3, 200, 40)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 3, 303, 20)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 4, 304, 100)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 4, 305, 100)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 400, 1, 304, 1, 305, 1, 201, 10, 80)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 401, 2, 304, 1, 305, 1, 200, 5, 80)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 400, 1, 304, 1, 305, 1, 300, 10, 80)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 401, 2, 304, 1, 305, 1, 300, 5, 80)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 402, 3, 304, 1, 305, 1, 302, 8, 80)")
 
         # ==================== ZONA 2: MINAS ABANDONADAS | NV 6-10 ====================
@@ -347,10 +352,6 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 510, 1, 393, 1, 394, 1, 392, 40, 40)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 511, 2, 393, 1, 394, 1, 392, 40, 40)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 512, 3, 393, 1, 394, 1, 392, 40, 40)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 40, 394, 100)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 510, 1, 393, 1, 394, 1, 392, 40, 40)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 511, 2, 393, 1, 394, 1, 392, 40, 40)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 512, 3, 393, 1, 394, 1, 392, 40, 40)")
 
         conn.commit()
         print("✅ Base de datos inicializada correctamente.")
@@ -414,13 +415,14 @@ def subir_nivel_si_aplica(player_id, xp_actual, level_actual):
 def obtener_monstruos_zona(zone_id):
     conn = sqlite3.connect(DB)
     c = conn.cursor()
+    # Cambiado 'MonsterName' por 'Name'
     c.execute("""
-        SELECT MonsterID, MonsterName, HP, ATK, DEF, XP, IsBoss, CritRate, CritDmg 
+        SELECT MonsterID, Name, HP, ATK, DEF, ExpReward, IsBoss, CritRate, CritDmg 
         FROM Monsters WHERE ZoneID = ?
     """, (zone_id,))
     mobs = c.fetchall()
     conn.close()
-    return random.choice(mobs)
+    return random.choice(mobs) if mobs else None
 
 def mostrar_drops_monstruo(monster_id):
     conn = sqlite3.connect(DB)
@@ -473,11 +475,11 @@ def ver_inventario(player_id):
     sys.stdout.flush()
 
 def actualizar_tienda_db():
-    # Inyecta los nuevos objetos a la base de datos sin borrar tu partida
     conn = sqlite3.connect(DB)
     c = conn.cursor()
     
-    # Poción MP
+    # Insertar el Consumible ID 100 inicial que faltaba en las tablas
+    c.execute("INSERT OR IGNORE INTO Items VALUES (100, 'Poción de Supervivencia', 'Consumible', 10)")
     c.execute("INSERT OR IGNORE INTO Items VALUES (101, 'Poción de Maná', 'Consumible', 25)")
     
     # Armas Nv 1 (100 Ryos)
@@ -498,7 +500,6 @@ def actualizar_tienda_db():
     
     conn.commit()
     conn.close()
-
 
 def visitar_tienda(player_id):
     while True:
@@ -528,7 +529,6 @@ def visitar_tienda(player_id):
 def comprar_tienda(player_id, nivel, ryos):
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    # Filtramos los IDs de la tienda (Pociones y Armas base)
     ids_tienda = [100, 101, 110, 111, 112, 120, 121, 122]
     placeholders = ','.join('?' for _ in ids_tienda)
     c.execute(f"SELECT ItemID, ItemName, Price FROM Items WHERE ItemID IN ({placeholders})", ids_tienda)
@@ -564,7 +564,6 @@ def vender_tienda(player_id):
     conn = sqlite3.connect(DB)
     c = conn.cursor()
     
-    # Solo mostramos items tipo Material que tengan un precio de venta mayor a 0
     c.execute("""
         SELECT inv.ItemID, i.ItemName, inv.Quantity, i.Price
         FROM Inventory inv
@@ -596,13 +595,12 @@ def vender_tienda(player_id):
                 ganancia = cant_vender * precio_unidad
                 c.execute("UPDATE Players SET Ryos = Ryos + ? WHERE PlayerID =?", (ganancia, player_id))
                 c.execute("UPDATE Inventory SET Quantity = Quantity - ? WHERE PlayerID =? AND ItemID =?", (cant_vender, player_id, item_id))
-                c.execute("DELETE FROM Inventory WHERE Quantity <= 0") # Limpiar inventario vacío
+                c.execute("DELETE FROM Inventory WHERE Quantity <= 0")
                 conn.commit()
                 print(f"✅ Vendiste {cant_vender}x {item_nombre} por {ganancia} Ryos.")
             else:
                 print("❌ Cantidad inválida.")
     conn.close()
-
 
 def gestionar_equipo(player_id):
     conn = sqlite3.connect(DB)
@@ -704,10 +702,13 @@ def combate(player_id):
         return
 
     mob = obtener_monstruos_zona(current_zone)
-    # Asegúrate de que tu fetch devuelva todos los nuevos valores
-    c.execute("SELECT HP, ATK, DEF, STR, AGI, DEX, Accuracy, Evasion, CritRate, CritDmg FROM Monsters WHERE MonsterID = ?", (id_monstruo,))
-    datos = c.fetchone()
-    # Ahora mapeas estos datos a variables que tu función de combate pueda procesar
+    if not mob:
+        print("\n❌ No hay monstruos configurados para esta zona.")
+        sys.stdout.flush()
+        return
+
+    # Mapeo correcto de las variables extraídas de la tupla devuelta por la BD
+    monster_id, enemigo_nombre, enemigo_hp, enemigo_atk, enemigo_def, exp_reward, is_boss, enemigo_crit_rate, enemigo_crit_dmg = mob
     atk_total, mag_total = obtener_poder_total(player_id)
 
     print(f"\n⚔️ ¡Un {enemigo_nombre} salvaje ha aparecido! (HP: {enemigo_hp} | ATK: {enemigo_atk})")
@@ -812,7 +813,6 @@ def combate(player_id):
         sys.stdout.flush()
 
 def visitar_ciudad(player_id):
-
     while True:
         datos = obtener_datos_jugador(player_id)
         nombre, hp, max_hp, ryos, atk, df, mag, level, xp, current_zone, max_zone, _, _ = datos
@@ -896,9 +896,10 @@ def crear_personaje():
     hp, atk, df, mag = base_stats[clase_id]
 
     c.execute("""
-        INSERT INTO Players (Name, HP, MaxHP, Ryos, ATK, DEF, MAG, Level, XP, CurrentZone, MaxZone, CritRate, CritDmg)
-        VALUES (?,?,?,?,?,?,?, 1, 0, 1, 1, 5, 1.5)
+    INSERT INTO Players (Name, HP, MaxHP, Ryos, ATK, DEF, MAG, Level, XP, CurrentZone, MaxZone, CritRate, CritDmg, STR, AGI, DEX, Accuracy, Evasion)
+    VALUES (?,?,?,?,?,?,?, 1, 0, 1, 1, 5, 1.5, 10, 10, 10, 80, 5)
     """, (nombre, hp, hp, 100, atk, df, mag))
+
 
     last_id = c.lastrowid
     c.execute("INSERT OR IGNORE INTO PlayerLocation VALUES (?, 1)", (last_id,))
