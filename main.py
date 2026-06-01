@@ -362,6 +362,372 @@ def init_db():
     finally:
         conn.close()
 
+def inicializar_stats_forja():
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    
+    # Forzamos la eliminación de la tabla vieja si quedó guardada con la estructura anterior
+    c.execute("DROP TABLE IF EXISTS WeaponStats")
+    
+    # Creamos la tabla asegurando las 9 columnas (WeaponID + 8 estatus de combate)
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS WeaponStats (
+            WeaponID INTEGER PRIMARY KEY,
+            HP INTEGER DEFAULT 0,
+            ATK INTEGER DEFAULT 0,
+            DF INTEGER DEFAULT 0,
+            MAG INTEGER DEFAULT 0,
+            Accuracy INTEGER DEFAULT 0,
+            Evasion INTEGER DEFAULT 0,
+            CritRate INTEGER DEFAULT 0,
+            CritDmg INTEGER DEFAULT 0,
+            FOREIGN KEY(WeaponID) REFERENCES Items(ItemID)
+        )
+    """)
+    
+    # Lista con el balance ascendente y progresivo para las 30 armas
+    # Estructura: (WeaponID, HP, ATK, DF, MAG, Accuracy, Evasion, CritRate, CritDmg)
+    armas_stats = [
+        # === ⚪ NIVEL 1: ARMAS BÁSICAS (Zonas 1 a 3) ===
+        # --- ZONA 1: Bosque Amanecer ---
+        (1, 20, 15, 5, 0, 0, 0, 0, 0),       # Colmillada del Alfa (Guerrero)
+        (2, 10, 16, 2, 0, 0, 0, 0, 0),       # Arco del Alfa (Arquero)
+        (3, 15, 0, 3, 18, 0, 0, 0, 0),       # Báculo del Alfa (Mago)
+        # --- ZONA 2: Minas Abandonadas ---
+        (4, 40, 35, 12, 0, 0, 0, 0, 0),      # Hacha del Rey Goblin (Guerrero)
+        (5, 25, 36, 6, 0, 0, 0, 0, 0),       # Ballesta de Minas (Arquero)
+        (6, 30, 0, 8, 40, 0, 0, 0, 0),       # Báculo de Hierro (Mago)
+        # --- ZONA 3: Pantano Sombrío ---
+        (7, 70, 55, 20, 0, 0, 0, 0, 0),      # Lanza del Anciano (Guerrero)
+        (8, 45, 56, 12, 0, 0, 0, 0, 0),      # Arco del Pantano (Arquero)
+        (9, 55, 0, 15, 60, 0, 0, 0, 0),      # Báculo Tóxico (Mago)
+
+        # === 🟢 NIVEL 2: ARMAS REFINADAS (Zonas 4 a 6) ===
+        # --- ZONA 4: Templo del Fuego ---
+        (10, 110, 75, 30, 0, 5, 3, 0, 0),    # Espadón Ígneo (Guerrero)
+        (11, 70, 78, 18, 0, 8, 6, 0, 0),     # Arco de Llamas (Arquero)
+        (12, 85, 0, 22, 85, 6, 4, 0, 0),     # Cetro de Ifrit (Mago)
+        # --- ZONA 5: Bosque Helado ---
+        (13, 160, 100, 42, 0, 7, 4, 0, 0),   # Hacha Glacial (Guerrero)
+        (14, 100, 104, 25, 0, 11, 9, 0, 0),  # Arco Glacial (Arquero)
+        (15, 125, 0, 32, 110, 9, 6, 0, 0),   # Báculo de Escarcha (Mago)
+        # --- ZONA 6: Desierto Carmesí ---
+        (16, 220, 130, 55, 0, 10, 6, 0, 0),  # Cimitarra Carmesí (Guerrero)
+        (17, 140, 134, 35, 0, 15, 12, 0, 0), # Arco del Desierto (Arquero)
+        (18, 175, 0, 42, 145, 12, 8, 0, 0),  # Báculo de Arena (Mago)
+
+        # === 🔵 NIVEL 3: ARMAS ÉPICAS (Zonas 7 a 9) ===
+        # --- ZONA 7: Montaña del Trueno ---
+        (19, 300, 165, 70, 0, 12, 8, 5, 0),  # Mandoble del Trueno (Guerrero)
+        (20, 190, 170, 45, 0, 18, 16, 8, 0), # Arco del Wyvern (Arquero)
+        (21, 240, 0, 55, 180, 14, 10, 6, 0), # Báculo del Rayo (Mago)
+        # --- ZONA 8: Catedral Maldita ---
+        (22, 400, 200, 90, 0, 15, 10, 8, 0), # Espada Profana (Guerrero)
+        (23, 250, 205, 58, 0, 22, 20, 12, 0),# Arco Sombrío (Arquero)
+        (24, 320, 0, 70, 220, 17, 13, 10, 0),# Báculo Oscuro (Mago)
+        # --- ZONA 9: Abismo Cristalino ---
+        (25, 550, 245, 115, 0, 18, 13, 12, 0),# Espada de Cristal (Guerrero)
+        (26, 350, 250, 75, 0, 26, 25, 18, 0),# Arco de Cristal (Arquero)
+        (27, 440, 0, 90, 270, 20, 16, 14, 0),# Báculo Prismático (Mago)
+
+        # === 🟣 NIVEL 4: ARMAS MITOLÓGICAS (Zona 10) ===
+        # --- ZONA 10: Ciudadela del Caos ---
+        (28, 750, 300, 150, 50, 22, 16, 15, 25), # Espada del Caos (Guerrero)
+        (29, 500, 310, 100, 40, 32, 30, 22, 35), # Arco del Abismo (Arquero)
+        (30, 620, 30, 120, 330, 25, 20, 18, 30)  # Báculo del Caos (Mago)
+    ]
+    
+    # Insertamos de golpe todos los datos en la nueva estructura limpia
+    c.executemany("""
+        INSERT OR REPLACE INTO WeaponStats (WeaponID, HP, ATK, DF, MAG, Accuracy, Evasion, CritRate, CritDmg)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, armas_stats)
+    
+    conn.commit()
+    conn.close()
+    print("📢 Base de datos: ¡Estadísticas de las 30 armas actualizadas y balanceadas!")
+
+def visitar_forja_armaduras(player_id):
+    # Códigos de color ANSI para la terminal
+    COLOR_VERDE = "\033[92m"
+    COLOR_ROJO = "\033[91m"
+    COLOR_RESET = "\033[0m"
+
+    while True:
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+        
+        # Traemos todas las recetas de ARMADURAS disponibles
+        # Nota: Asegúrate de que en tu tabla CraftingRecipes o la que uses para planos,
+        # los ResultItemID correspondan a los IDs de tus armaduras (del 31 al 60).
+        c.execute("""
+            SELECT 
+                r.RecipeID, i_res.ItemName, r.ResultItemID, r.SuccessRate,
+                i_m1.ItemName, r.Material1ID, r.Qty1,
+                i_m2.ItemName, r.Material2ID, r.Qty2,
+                i_m3.ItemName, r.Material3ID, r.Qty3
+            FROM CraftingRecipes r
+            JOIN Items i_res ON r.ResultItemID = i_res.ItemID
+            LEFT JOIN Items i_m1 ON r.Material1ID = i_m1.ItemID
+            LEFT JOIN Items i_m2 ON r.Material2ID = i_m2.ItemID
+            LEFT JOIN Items i_m3 ON r.Material3ID = i_m3.ItemID
+            WHERE r.ResultItemID BETWEEN 31 AND 60
+        """)
+        recetas = c.fetchall()
+        
+        # Mapeamos el inventario actual del jugador {ItemID: Cantidad}
+        c.execute("SELECT ItemID, Quantity FROM Inventory WHERE PlayerID = ?", (player_id,))
+        inv_jugador = dict(c.fetchall())
+        conn.close()
+
+        print("\n🛡️ === SASTRERÍA Y PLACAS DE FORJA ===")
+        if not recetas:
+            print("No hay planos ni recetas de armaduras disponibles en este momento.")
+            break
+            
+        # PANTALLA 1: Listado de armaduras coloreado
+        for i, r in enumerate(recetas):
+            _, name_res, _, _, _, m1_id, q1, _, m2_id, q2, _, m3_id, q3 = r
+            
+            # Evaluamos en segundo plano si cumple las condiciones de materiales
+            tengo_m1 = inv_jugador.get(m1_id, 0) >= q1 if m1_id else True
+            tengo_m2 = inv_jugador.get(m2_id, 0) >= q2 if m2_id else True
+            tengo_m3 = inv_jugador.get(m3_id, 0) >= q3 if m3_id else True
+            
+            # Si tiene todo va en verde, si falta algo, en rojo
+            if tengo_m1 and tengo_m2 and tengo_m3:
+                color_armadura = COLOR_VERDE
+            else:
+                color_armadura = COLOR_ROJO
+                
+            print(f"{i+1}. {color_armadura}🛡️ {name_res}{COLOR_RESET}")
+        
+        print("0. Volver al menú de la forja")
+        sys.stdout.flush()
+        
+        opc = input("\nSelecciona una armadura para ver sus detalles o forjarla: ")
+        if opc == "0":
+            break
+            
+        if opc.isdigit() and 0 < int(opc) <= len(recetas):
+            idx = int(opc) - 1
+            r_elegida = recetas[idx]
+            rec_id, name_res, id_res, rate, m1_name, m1_id, q1, m2_name, m2_id, q2, m3_name, m3_id, q3 = r_elegida
+            
+            # PANTALLA 2: Vista detallada de la armadura seleccionada
+            print(f"\n📋 --- DETALLES DE ARMADURA: {name_res} ---")
+            print(f"Probabilidad de éxito: {rate}%")
+            print("Materiales requeridos:")
+            
+            # Validamos y mostramos las cantidades de cada ingrediente
+            cant1 = inv_jugador.get(m1_id, 0) if m1_id else 0
+            cant2 = inv_jugador.get(m2_id, 0) if m2_id else 0
+            cant3 = inv_jugador.get(m3_id, 0) if m3_id else 0
+            
+            tengo_m1 = cant1 >= q1 if m1_id else True
+            tengo_m2 = cant2 >= q2 if m2_id else True
+            tengo_m3 = cant3 >= q3 if m3_id else True
+            
+            if m1_id:
+                col = COLOR_VERDE if tengo_m1 else COLOR_ROJO
+                print(f" - {col}{m1_name}: {cant1}/{q1}{COLOR_RESET}")
+            if m2_id:
+                col = COLOR_VERDE if tengo_m2 else COLOR_ROJO
+                print(f" - {col}{m2_name}: {cant2}/{q2}{COLOR_RESET}")
+            if m3_id:
+                col = COLOR_VERDE if tengo_m3 else COLOR_ROJO
+                print(f" - {col}{m3_name}: {cant3}/{q3}{COLOR_RESET}")
+                
+            print("\n1. Intentar forjar armadura")
+            print("0. Volver al listado")
+            sys.stdout.flush()
+            
+            accion = input("¿Qué deseas hacer?: ")
+            
+            if accion == "1":
+                if tengo_m1 and tengo_m2 and tengo_m3:
+                    conn = sqlite3.connect(DB)
+                    c = conn.cursor()
+                    
+                    # Consumir materiales del inventario
+                    if m1_id: c.execute("UPDATE Inventory SET Quantity = Quantity - ? WHERE PlayerID = ? AND ItemID = ?", (q1, player_id, m1_id))
+                    if m2_id: c.execute("UPDATE Inventory SET Quantity = Quantity - ? WHERE PlayerID = ? AND ItemID = ?", (q2, player_id, m2_id))
+                    if m3_id: c.execute("UPDATE Inventory SET Quantity = Quantity - ? WHERE PlayerID = ? AND ItemID = ?", (q3, player_id, m3_id))
+                    
+                    c.execute("DELETE FROM Inventory WHERE Quantity <= 0")
+                    
+                    print(f"\n🔥 Hilando y remachando las piezas para crear {name_res}...")
+                    
+                    if random.randint(1, 100) <= rate:
+                        c.execute("""
+                            INSERT INTO Inventory (PlayerID, ItemID, Quantity)
+                            VALUES (?, ?, 1)
+                            ON CONFLICT(PlayerID, ItemID) DO UPDATE SET Quantity = Quantity + 1
+                        """, (player_id, id_res))
+                        print(f"✨ ¡ÉXITO! Has forjado tu nueva armadura: ¡{name_res}! 🛡️")
+                    else:
+                        print("💥 ¡FALLO! Los materiales se dañaron durante el templado del metal. Los perdiste...")
+                        
+                    conn.commit()
+                    conn.close()
+                else:
+                    print("❌ No puedes forjar esta armadura. Te faltan materiales.")
+            elif accion == "0":
+                continue
+        else:
+            print("❌ Selección inválida.")
+        sys.stdout.flush()
+
+
+def visitar_forja_armas(player_id):
+    # Códigos de color ANSI para la terminal
+    COLOR_VERDE = "\033[92m"
+    COLOR_ROJO = "\033[91m"
+    COLOR_RESET = "\033[0m"
+
+    while True:
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+        
+        # Traemos todas las recetas disponibles
+        c.execute("""
+            SELECT 
+                r.RecipeID, i_res.ItemName, r.ResultItemID, r.SuccessRate,
+                i_m1.ItemName, r.Material1ID, r.Qty1,
+                i_m2.ItemName, r.Material2ID, r.Qty2,
+                i_m3.ItemName, r.Material3ID, r.Qty3
+            FROM CraftingRecipes r
+            JOIN Items i_res ON r.ResultItemID = i_res.ItemID
+            LEFT JOIN Items i_m1 ON r.Material1ID = i_m1.ItemID
+            LEFT JOIN Items i_m2 ON r.Material2ID = i_m2.ItemID
+            LEFT JOIN Items i_m3 ON r.Material3ID = i_m3.ItemID
+        """)
+        recetas = c.fetchall()
+        
+        # Mapeamos el inventario actual del jugador {ItemID: Cantidad}
+        c.execute("SELECT ItemID, Quantity FROM Inventory WHERE PlayerID = ?", (player_id,))
+        inv_jugador = dict(c.fetchall())
+        conn.close()
+
+        print("\n🔨 === FORJA DE VILLA AMANECER ===")
+        if not recetas:
+            print("No hay planos ni recetas de forja disponibles en este momento.")
+            break
+            
+        # PANTALLA 1: Listado de armas coloreado
+        for i, r in enumerate(recetas):
+            _, name_res, _, _, _, m1_id, q1, _, m2_id, q2, _, m3_id, q3 = r
+            
+            # Evaluamos en segundo plano si cumple las condiciones
+            tengo_m1 = inv_jugador.get(m1_id, 0) >= q1 if m1_id else True
+            tengo_m2 = inv_jugador.get(m2_id, 0) >= q2 if m2_id else True
+            tengo_m3 = inv_jugador.get(m3_id, 0) >= q3 if m3_id else True
+            
+            # Si tiene todo va en verde, si no, en rojo
+            if tengo_m1 and tengo_m2 and tengo_m3:
+                color_arma = COLOR_VERDE
+            else:
+                color_arma = COLOR_ROJO
+                
+            print(f"{i+1}. {color_arma}⚔️ {name_res}{COLOR_RESET}")
+        
+        print("0. Salir de la Forja")
+        sys.stdout.flush()
+        
+        opc = input("\nSelecciona un arma para ver sus detalles o forjarla: ")
+        if opc == "0":
+            break
+            
+        if opc.isdigit() and 0 < int(opc) <= len(recetas):
+            idx = int(opc) - 1
+            r_elegida = recetas[idx]
+            rec_id, name_res, id_res, rate, m1_name, m1_id, q1, m2_name, m2_id, q2, m3_name, m3_id, q3 = r_elegida
+            
+            # PANTALLA 2: Vista detallada del arma seleccionada
+            print(f"\n📋 --- DETALLES DE FORJA: {name_res} ---")
+            print(f"Probabilidad de éxito: {rate}%")
+            print("Materiales requeridos:")
+            
+            # Validamos y mostramos el estado de cada ingrediente individualmente
+            cant1 = inv_jugador.get(m1_id, 0) if m1_id else 0
+            cant2 = inv_jugador.get(m2_id, 0) if m2_id else 0
+            cant3 = inv_jugador.get(m3_id, 0) if m3_id else 0
+            
+            tengo_m1 = cant1 >= q1 if m1_id else True
+            tengo_m2 = cant2 >= q2 if m2_id else True
+            tengo_m3 = cant3 >= q3 if m3_id else True
+            
+            if m1_id:
+                col = COLOR_VERDE if tengo_m1 else COLOR_ROJO
+                print(f" - {col}{m1_name}: {cant1}/{q1}{COLOR_RESET}")
+            if m2_id:
+                col = COLOR_VERDE if tengo_m2 else COLOR_ROJO
+                print(f" - {col}{m2_name}: {cant2}/{q2}{COLOR_RESET}")
+            if m3_id:
+                col = COLOR_VERDE if tengo_m3 else COLOR_ROJO
+                print(f" - {col}{m3_name}: {cant3}/{q3}{COLOR_RESET}")
+                
+            print("\n1. Intentar forjar arma")
+            print("0. Volver al listado")
+            sys.stdout.flush()
+            
+            accion = input("¿Qué deseas hacer?: ")
+            
+            if accion == "1":
+                if tengo_m1 and tengo_m2 and tengo_m3:
+                    conn = sqlite3.connect(DB)
+                    c = conn.cursor()
+                    
+                    # Consumir materiales
+                    if m1_id: c.execute("UPDATE Inventory SET Quantity = Quantity - ? WHERE PlayerID = ? AND ItemID = ?", (q1, player_id, m1_id))
+                    if m2_id: c.execute("UPDATE Inventory SET Quantity = Quantity - ? WHERE PlayerID = ? AND ItemID = ?", (q2, player_id, m2_id))
+                    if m3_id: c.execute("UPDATE Inventory SET Quantity = Quantity - ? WHERE PlayerID = ? AND ItemID = ?", (q3, player_id, m3_id))
+                    
+                    c.execute("DELETE FROM Inventory WHERE Quantity <= 0")
+                    
+                    print(f"\n🔥 El herrero golpea el yunque con los materiales para forjar {name_res}...")
+                    
+                    if random.randint(1, 100) <= rate:
+                        c.execute("""
+                            INSERT INTO Inventory (PlayerID, ItemID, Quantity)
+                            VALUES (?, ?, 1)
+                            ON CONFLICT(PlayerID, ItemID) DO UPDATE SET Quantity = Quantity + 1
+                        """, (player_id, id_res))
+                        print(f"✨ ¡ÉXITO ROTUNDO! Has obtenido tu nueva arma: ¡{name_res}! ✨")
+                    else:
+                        print("💥 ¡FALLO EN LA FORJA! El metal se quebró debido a la presión. Perdiste los materiales...")
+                        
+                    conn.commit()
+                    conn.close()
+                else:
+                    print("❌ No puedes forjar este objeto. Te faltan materiales.")
+            elif accion == "0":
+                continue
+        else:
+            print("❌ Selección inválida.")
+        sys.stdout.flush()
+
+def visitar_forja(player_id):
+    while True:
+        print("\n🔨 === EL YUNQUE DE VILLA AMANECER ===")
+        print("1. Forjar Armas ⚔️")
+        print("2. Forjar Armaduras 🛡️")
+        print("0. Volver a la Zona Segura ↩️")
+        sys.stdout.flush()
+        
+        opc = input("¿Qué sección deseas visitar?: ")
+        
+        if opc == "1":
+            visitar_forja_armas(player_id) # La forja de armas original
+        elif opc == "2":
+            visitar_forja_armaduras(player_id) # La nueva sección
+        elif opc == "0":
+            break
+        else:
+            print("❌ Opción inválida.")
+        sys.stdout.flush()
+
+
 def obtener_datos_jugador(player_id):
     conn = sqlite3.connect(DB)
     c = conn.cursor()
@@ -838,62 +1204,84 @@ def combate(player_id):
 def visitar_ciudad(player_id):
     while True:
         datos = obtener_datos_jugador(player_id)
-        nombre, hp, max_hp, ryos, atk, df, mag, level, xp, current_zone, max_zone, *otros = datos
+        nombre, hp, max_hp, ryos, atk, df, mag, level, xp, current_zone, max_zone = datos[:11]
 
-        print(f"\n=== 🛡️ {nombre} | HP: {hp}/{max_hp} | Ryos: {ryos} | NV: {level} | ZONA ACTUAL: {current_zone} ===")
-        print("1. Descansar en la Posada (Recuperas HP gratis)")
-        print("2. Salir a las afueras (Buscar Combate ⚔️)")
-        print("3. Usar una Poción de Supervivencia")
-        print("4. Cambiar de Zona (Viaje Rápido 🗺️)")
-        print("5. Visitar Tienda 💰")
-        print("6. Gestionar Equipo ⚔️")
-        print("7. Ver inventario 📦")
-        print("8. Salir del juego")
+        # Menú Principal adaptado a tus nuevas especificaciones
+        print(f"\n=== MENÚ PRINCIPAL | {nombre} | HP: {hp}/{max_hp} | ZONA: {current_zone} ===")
+        print("1. Entrar a la Zona Segura 🛡️")
+        print("2. Buscar Combate (Salir a las afueras) ⚔️")
+        print("3. Cambiar de Zona de Caza (Viaje Rápido) 🗺️")
+        print("4. Gestionar Equipo 🎒")
+        print("5. Ver inventario 📦")
+        print("6. Salir del juego 🚪")
         sys.stdout.flush()
 
         opcion = input("Elige una opción: ")
+        
         if opcion == "1":
-            hp = max_hp
-            actualizar_hp_ryos_xp(player_id, hp, ryos, xp)
-            print("\n💤 Descansando... ¡Tu salud se ha restablecido por completo!")
+            # === SUBMENÚ: ZONA SEGURA ===
+            while True:
+                print(f"\n--- 🏡 ZONA SEGURA (Villa Amanecer) | Ryos: {ryos} ---")
+                print("1. Descansar en la Posada (Recuperar HP gratis 💤)")
+                print("2. Visitar Tienda 💰")
+                print("3. Forjar y Craftear 🔨")
+                print("4. Volver al menú principal ↩️")
+                sys.stdout.flush()
+                
+                sub_opc = input("¿Qué deseas hacer en la zona segura?: ")
+                
+                if sub_opc == "1":
+                    hp = max_hp
+                    actualizar_hp_ryos_xp(player_id, hp, ryos, xp)
+                    print("\n💤 Descansando... ¡Tu salud se ha restablecido por completo!")
+                elif sub_opc == "2":
+                    visitar_tienda(player_id)
+                    # Actualizamos Ryos localmente por si compró o vendió algo en la tienda
+                    *_, ryos, _, _, _, _, _, _, _, _, _ = obtener_datos_jugador(player_id)
+                elif sub_opc == "3":
+                    visitar_forja(player_id)
+                elif sub_opc == "4":
+                    print("\nVolviendo al exterior de la zona segura...")
+                    break
+                else:
+                    print("❌ Opción inválida en la Zona Segura.")
+                sys.stdout.flush()
+
         elif opcion == "2":
+            print(f"\n🚪 Cruzas las murallas hacia las afueras (Zona de peligro activa: {current_zone})...")
+            sys.stdout.flush()
             combate(player_id)
         elif opcion == "3":
-            hp, exito = intentar_curacion(player_id, hp, max_hp)
-            if exito:
-                actualizar_hp_ryos_xp(player_id, hp, ryos, xp)
-        elif opcion == "4":
             print(f"\n=== 🗺️ Viaje Rápido (Zonas Desbloqueadas: {max_zone}) ===")
             for i in range(1, max_zone + 1):
-                print(f"{i}. Viajar a la Zona {i}")
+                print(f"{i}. Configurar Zona {i}")
             print("0. Cancelar")
             sys.stdout.flush()
             try:
-                z_elegida = int(input("Elige el número de zona al que quieres viajar: "))
+                z_elegida = int(input("Elige el número de zona al que quieres apuntar tus viajes: "))
                 if 1 <= z_elegida <= max_zone:
                     conn = sqlite3.connect(DB)
                     c = conn.cursor()
                     c.execute("UPDATE Players SET CurrentZone = ? WHERE PlayerID = ?", (z_elegida, player_id))
                     conn.commit()
                     conn.close()
-                    print(f"✈️ Has viajado a la Zona {z_elegida}.")
+                    print(f"✈️ Has configurado tus salidas para la Zona {z_elegida}.")
                 elif z_elegida != 0:
                     print("❌ Zona no válida o aún bloqueada.")
             except ValueError:
                 print("❌ Ingresa un número válido.")
-        elif opcion == "5":
-            visitar_tienda(player_id)
-        elif opcion == "6":
+        elif opcion == "4":
             gestionar_equipo(player_id)
-        elif opcion == "7":
+        elif opcion == "5":
             ver_inventario(player_id)
-        elif opcion == "8":
+        elif opcion == "6":
             print("¡Gracias por jugar! Guardando partida...")
             sys.stdout.flush()
             break
         else:
             print("Opción inválida.")
         sys.stdout.flush()
+
 
 def crear_personaje():
     conn = sqlite3.connect(DB)
@@ -937,6 +1325,7 @@ def crear_personaje():
 if __name__ == "__main__":
     init_db()
     actualizar_tienda_db()
+    inicializar_stats_forja()
     print("=== ¡Bienvenido a JuegoNew RPG! ===")
     sys.stdout.flush()
     crear_personaje()
