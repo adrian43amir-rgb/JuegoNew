@@ -366,7 +366,7 @@ def obtener_datos_jugador(player_id):
     conn = sqlite3.connect(DB)
     c = conn.cursor()
     c.execute("""
-        SELECT Name, HP, MaxHP, Ryos, ATK, DEF, MAG, Level, XP, CurrentZone, MaxZone, CritRate, CritDmg
+        SELECT Name, HP, MaxHP, Ryos, ATK, DEF, MAG, Level, XP, CurrentZone, MaxZone, CritRate, CritDmg, Accuracy, Evasion
         FROM Players
         WHERE PlayerID = ?
     """, (player_id,))
@@ -415,9 +415,8 @@ def subir_nivel_si_aplica(player_id, xp_actual, level_actual):
 def obtener_monstruos_zona(zone_id):
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    # Cambiado 'MonsterName' por 'Name'
     c.execute("""
-        SELECT MonsterID, Name, HP, ATK, DEF, ExpReward, IsBoss, CritRate, CritDmg 
+        SELECT MonsterID, Name, HP, ATK, DEF, ExpReward, IsBoss, CritRate, CritDmg, Accuracy, Evasion 
         FROM Monsters WHERE ZoneID = ?
     """, (zone_id,))
     mobs = c.fetchall()
@@ -653,12 +652,19 @@ def obtener_poder_total(player_id):
     conn.close()
     return atk_total, mag_total
 
-def calcular_daño(atk_atacante, def_defensor, crit_rate, crit_dmg):
+def calcular_daño(atk_atacante, def_defensor, crit_rate, crit_dmg, acc_atacante, eva_defensor):
+    # Calcular si el golpe acierta o se esquiva
+    chance_acierto = acc_atacante - eva_defensor
+    if random.randint(1, 100) > chance_acierto:
+        return 0, False, True  # Devuelve: daño 0, NO es crítico, SÍ fue esquivado (MISS)
+    
+    # Si acierta, calcula daño normal/crítico
     daño = max(1, atk_atacante - def_defensor)
     es_critico = random.randint(1, 100) <= crit_rate
     if es_critico:
         daño = int(daño * crit_dmg)
-    return daño, es_critico
+    return daño, es_critico, False
+
 
 def consultar_pociones(player_id):
     conn = sqlite3.connect(DB)
@@ -694,7 +700,8 @@ def intentar_curacion(player_id, hp, max_hp):
 
 def combate(player_id):
     datos = obtener_datos_jugador(player_id)
-    nombre, hp, max_hp, ryos, atk, df, mag, level, xp, current_zone, max_zone, player_crit_rate, player_crit_dmg = datos
+    # Extraemos Accuracy y Evasion del jugador (p_acc, p_eva)
+    nombre, hp, max_hp, ryos, atk, df, mag, level, xp, current_zone, max_zone, player_crit_rate, player_crit_dmg, p_acc, p_eva = datos
 
     if hp <= 0:
         print("\n💀 No puedes pelear sin vida. ¡Descansa en la ciudad primero!")
@@ -707,8 +714,8 @@ def combate(player_id):
         sys.stdout.flush()
         return
 
-    # Mapeo correcto de las variables extraídas de la tupla devuelta por la BD
-    monster_id, enemigo_nombre, enemigo_hp, enemigo_atk, enemigo_def, exp_reward, is_boss, enemigo_crit_rate, enemigo_crit_dmg = mob
+    # Extraemos Accuracy y Evasion del monstruo (enemigo_acc, enemigo_eva)
+    monster_id, enemigo_nombre, enemigo_hp, enemigo_atk, enemigo_def, exp_reward, is_boss, enemigo_crit_rate, enemigo_crit_dmg, enemigo_acc, enemigo_eva = mob
     atk_total, mag_total = obtener_poder_total(player_id)
 
     print(f"\n⚔️ ¡Un {enemigo_nombre} salvaje ha aparecido! (HP: {enemigo_hp} | ATK: {enemigo_atk})")
@@ -725,29 +732,41 @@ def combate(player_id):
         acc = input("Elige tu acción: ")
 
         if acc == "1":
-            daño_final, crit = calcular_daño(atk_total, enemigo_def, player_crit_rate, player_crit_dmg)
-            enemigo_hp -= daño_final
-            if crit:
-                print(f"🔥 ¡CRÍTICO! Infliges {daño_final} de daño.")
+            # Turno del Jugador
+            daño_final, crit, esquivado = calcular_daño(atk_total, enemigo_def, player_crit_rate, player_crit_dmg, p_acc, enemigo_eva)
+            if esquivado:
+                print(f"💨 ¡MISS! El {enemigo_nombre} ha esquivado tu golpe.")
             else:
-                print(f"⚔️ Atacas al {enemigo_nombre} y le infliges {daño_final} de daño.")
+                enemigo_hp -= daño_final
+                if crit:
+                    print(f"🔥 ¡CRÍTICO! Infliges {daño_final} de daño.")
+                else:
+                    print(f"⚔️ Atacas al {enemigo_nombre} y le infliges {daño_final} de daño.")
             
             if enemigo_hp <= 0: 
                 break
                 
-            daño_recibido, crit_enemigo = calcular_daño(enemigo_atk, df, enemigo_crit_rate, enemigo_crit_dmg)
-            hp -= daño_recibido
-            if crit_enemigo:
-                print(f"💀 ¡GOLPE CRÍTICO DEL ENEMIGO! Te hace {daño_recibido} de daño.")
+            # Turno del Monstruo
+            daño_recibido, crit_enemigo, esquivado_player = calcular_daño(enemigo_atk, df, enemigo_crit_rate, enemigo_crit_dmg, enemigo_acc, p_eva)
+            if esquivado_player:
+                print(f"🛡️ ¡MISS! Has esquivado el ataque del {enemigo_nombre}.")
             else:
-                print(f"⚠️ El {enemigo_nombre} te devuelve el golpe y te hace {daño_recibido} de daño.")
+                hp -= daño_recibido
+                if crit_enemigo:
+                    print(f"💀 ¡GOLPE CRÍTICO DEL ENEMIGO! Te hace {daño_recibido} de daño.")
+                else:
+                    print(f"⚠️ El {enemigo_nombre} te devuelve el golpe y te hace {daño_recibido} de daño.")
 
         elif acc == "2":  
             hp, exito = intentar_curacion(player_id, hp, max_hp)
             if exito:
-                daño_enemigo = max(1, enemigo_atk - df)
-                hp -= daño_enemigo
-                print(f"⚠️ El {enemigo_nombre} aprovechó tu distracción y te hizo {daño_enemigo} de daño.")
+                # El monstruo ataca, pero verificamos si esquivas
+                daño_enemigo, crit_enemigo, esquivado_player = calcular_daño(enemigo_atk, df, enemigo_crit_rate, enemigo_crit_dmg, enemigo_acc, p_eva)
+                if esquivado_player:
+                    print(f"🛡️ El {enemigo_nombre} intentó atacarte mientras te curabas, ¡pero lo esquivaste!")
+                else:
+                    hp -= daño_enemigo
+                    print(f"⚠️ El {enemigo_nombre} aprovechó tu distracción y te hizo {daño_enemigo} de daño.")
 
         elif acc == "3":  
             if is_boss == 1:
@@ -759,9 +778,12 @@ def combate(player_id):
                 return
             else:
                 print("❌ ¡Intentaste huir pero el enemigo te bloqueó el paso!")
-                daño_enemigo = max(1, enemigo_atk - df)
-                hp -= daño_enemigo
-                print(f"⚠️ El {enemigo_nombre} te golpea por la espalda haciendo {daño_enemigo} de daño.")
+                daño_enemigo, crit_enemigo, esquivado_player = calcular_daño(enemigo_atk, df, enemigo_crit_rate, enemigo_crit_dmg, enemigo_acc, p_eva)
+                if esquivado_player:
+                    print(f"🛡️ El {enemigo_nombre} intentó golpearte por la espalda, ¡pero lo esquivaste justo a tiempo!")
+                else:
+                    hp -= daño_enemigo
+                    print(f"⚠️ El {enemigo_nombre} te golpea por la espalda haciendo {daño_enemigo} de daño.")
         else:  
             print("Acción inválida. Pierdes el turno.")
         sys.stdout.flush()
@@ -812,10 +834,11 @@ def combate(player_id):
                     print(f"\n🚶‍♂️ Viajaste a la Zona {current_zone}.")
         sys.stdout.flush()
 
+
 def visitar_ciudad(player_id):
     while True:
         datos = obtener_datos_jugador(player_id)
-        nombre, hp, max_hp, ryos, atk, df, mag, level, xp, current_zone, max_zone, _, _ = datos
+        nombre, hp, max_hp, ryos, atk, df, mag, level, xp, current_zone, max_zone, *otros = datos
 
         print(f"\n=== 🛡️ {nombre} | HP: {hp}/{max_hp} | Ryos: {ryos} | NV: {level} | ZONA ACTUAL: {current_zone} ===")
         print("1. Descansar en la Posada (Recuperas HP gratis)")
