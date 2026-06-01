@@ -1,3 +1,4 @@
+#adri prueba1
 import sqlite3
 import random
 import sys
@@ -10,11 +11,31 @@ def init_db():
     c = conn.cursor()
 
     try:
+        # Agrega esta tabla en init_db
+        c.execute("""CREATE TABLE IF NOT EXISTS WeaponStats(
+            ItemID INTEGER PRIMARY KEY,
+            AtkBonus INTEGER DEFAULT 0,
+            MagBonus INTEGER DEFAULT 0,
+            FOREIGN KEY(ItemID) REFERENCES Items(ItemID)
+        )""")
+        # Inserta algunos bonos para tus armas (ejemplos)
+        c.execute("INSERT OR IGNORE INTO WeaponStats VALUES (400, 5, 0)") # Colmillada Alfa: +5 ATK
+        c.execute("INSERT OR IGNORE INTO WeaponStats VALUES (401, 0, 8)") # Báculo Alfa: +8 MAG
         # === TABLAS BASE ===
+        # --- Agrega esto a tu función init_db() ---
+        c.execute("""ALTER TABLE Players ADD COLUMN EquipWeapon INTEGER DEFAULT NULL""")
+        c.execute("""ALTER TABLE Players ADD COLUMN EquipArmor INTEGER DEFAULT NULL""")
+        # Asegúrate de modificar el CREATE TABLE de Players inicial para incluir estas columnas
         c.execute("""CREATE TABLE IF NOT EXISTS Players(
             PlayerID INTEGER PRIMARY KEY, Name TEXT, HP INTEGER, MaxHP INTEGER,
-            Ryos INTEGER, ATK INTEGER, DEF INTEGER, MAG INTEGER, Level INTEGER, XP INTEGER)""")
-
+            Ryos INTEGER, ATK INTEGER, DEF INTEGER, MAG INTEGER, Level INTEGER, XP INTEGER,
+            CurrentZone INTEGER DEFAULT 1, MaxZone INTEGER DEFAULT 1)""")
+        # En tu init_db, al crear las tablas:
+        c.execute("""ALTER TABLE Players ADD COLUMN CritRate INTEGER DEFAULT 5""")
+        c.execute("""ALTER TABLE Players ADD COLUMN CritDmg REAL DEFAULT 1.5""")
+        # Y para los monstruos:
+        c.execute("""ALTER TABLE Monsters ADD COLUMN CritRate INTEGER DEFAULT 5""")
+        c.execute("""ALTER TABLE Monsters ADD COLUMN CritDmg REAL DEFAULT 1.5""")
         c.execute("""CREATE TABLE IF NOT EXISTS Classes(
             ClassID INTEGER PRIMARY KEY, ClassName TEXT)""")
 
@@ -318,10 +339,10 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 512, 3, 393, 1, 394, 1, 392, 40, 40)")
 
         conn.commit()
-        print("Base de datos inicializada correctamente.")
+        print("✅ Base de datos inicializada correctamente.")
 
     except sqlite3.Error as e:
-        print(f"Error al inicializar la base de datos: {e}")
+        print(f"❌ Error al inicializar la base de datos: {e}")
         conn.rollback()
     finally:
         conn.close()
@@ -329,11 +350,11 @@ def init_db():
 def obtener_datos_jugador(player_id):
     conn = sqlite3.connect(DB)
     c = conn.cursor()
+    # Ahora leemos CurrentZone y MaxZone directamente del jugador
     c.execute("""
-        SELECT p.Name, p.HP, p.MaxHP, p.Ryos, p.ATK, p.DEF, p.MAG, p.Level, p.XP, pl.CityID
-        FROM Players p
-        JOIN PlayerLocation pl ON p.PlayerID = pl.PlayerID
-        WHERE p.PlayerID =?
+        SELECT Name, HP, MaxHP, Ryos, ATK, DEF, MAG, Level, XP, CurrentZone, MaxZone
+        FROM Players
+        WHERE PlayerID = ?
     """, (player_id,))
     datos = c.fetchone()
     conn.close()
@@ -347,20 +368,17 @@ def actualizar_hp_ryos_xp(player_id, hp, ryos, xp):
     conn.close()
 
 def subir_nivel_si_aplica(player_id, xp_actual, level_actual):
-    # XP necesaria para subir: 100 * nivel actual
     xp_necesaria = 100 * level_actual
     
     if xp_actual >= xp_necesaria:
         nuevo_level = level_actual + 1
         xp_restante = xp_actual - xp_necesaria
         
-        # Sube stats base al subir nivel
         conn = sqlite3.connect(DB)
         c = conn.cursor()
         c.execute("SELECT ATK, DEF, MAG, MaxHP FROM Players WHERE PlayerID =?", (player_id,))
         atk, df, mag, max_hp = c.fetchone()
         
-        # Stats que gana por nivel
         atk += 2
         df += 1
         mag += 1
@@ -418,6 +436,94 @@ def tirar_drop(monster_id, player_id):
     conn.commit()
     conn.close()
 
+def visitar_tienda(player_id):
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute("SELECT Name, Ryos FROM Players WHERE PlayerID =?", (player_id,))
+    nombre, ryos = c.fetchone()
+    
+    print(f"\n💰 Tienda de {nombre} (Ryos: {ryos})")
+    c.execute("SELECT ItemID, ItemName, Price FROM Items WHERE Price > 0")
+    productos = c.fetchall()
+    
+    for i, (id, nombre_item, precio) in enumerate(productos):
+        print(f"{i+1}. {nombre_item} - {precio} Ryos")
+    
+    opc = input("¿Qué deseas comprar? (o 0 para salir): ")
+    if opc != "0":
+        idx = int(opc) - 1
+        item_id, item_nombre, precio = productos[idx]
+        if ryos >= precio:
+            c.execute("UPDATE Players SET Ryos = Ryos - ? WHERE PlayerID =?", (precio, player_id))
+            c.execute("INSERT INTO Inventory (PlayerID, ItemID, Quantity) VALUES (?,?,1) ON CONFLICT(PlayerID, ItemID) DO UPDATE SET Quantity = Quantity + 1", (player_id, item_id))
+            conn.commit()
+            print(f"✅ Compraste {item_nombre}.")
+        else:
+            print("❌ No tienes suficientes Ryos.")
+    conn.close()
+
+def gestionar_equipo(player_id):
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    # Listar armas en inventario
+    c.execute("""
+        SELECT i.ItemID, i.ItemName FROM Inventory inv
+        JOIN Items i ON inv.ItemID = i.ItemID
+        WHERE inv.PlayerID =? AND i.ItemType LIKE 'Arma%'
+    """, (player_id,))
+    armas = c.fetchall()
+    
+    print("\n⚔️ Gestión de Equipo:")
+    for i, (id, nombre) in enumerate(armas):
+        print(f"{i+1}. {nombre}")
+        
+    opc = input("Selecciona arma a equipar (o 0 para cancelar): ")
+    if opc != "0":
+        item_id = armas[int(opc)-1][0]
+        # Aquí aplicarías lógica de bonificación (ej: un arma da +5 ATK)
+        c.execute("UPDATE Players SET EquipWeapon =? WHERE PlayerID =?", (item_id, player_id))
+        conn.commit()
+        print("🛡️ Arma equipada con éxito.")
+    conn.close()
+
+def obtener_poder_total(player_id):
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    # Obtenemos ATK, MAG y el ID del arma equipada
+    c.execute("""
+        SELECT p.ATK, p.MAG, p.EquipWeapon, w.AtkBonus, w.MagBonus 
+        FROM Players p
+        LEFT JOIN WeaponStats w ON p.EquipWeapon = w.ItemID
+        WHERE p.PlayerID =?
+    """, (player_id,))
+    res = c.fetchone()
+    if not res: return 0, 0
+    atk_base, mag_base, weapon_id, atk_bonus, mag_bonus = res
+    
+    # Si no hay arma equipada, el bonus es 0
+    atk_total = atk_base + (atk_bonus if atk_bonus else 0)
+    mag_total = mag_base + (mag_bonus if mag_bonus else 0)
+    conn.close()
+    return atk_total, mag_total
+
+def calcular_daño(atk_atacante, def_defensor, crit_rate, crit_dmg):
+    """
+    atk_atacante: Valor total de ataque (base + arma)
+    def_defensor: Valor de defensa del objetivo
+    crit_rate: 0 a 100
+    crit_dmg: Multiplicador (ej: 1.5)
+    """
+    # 1. Daño base
+    daño = max(1, atk_atacante - def_defensor)
+    
+    # 2. Verificar crítico
+    es_critico = random.randint(1, 100) <= crit_rate
+    if es_critico:
+        daño = int(daño * crit_dmg)
+        
+    return daño, es_critico
+
+
 def consultar_pociones(player_id):
     conn = sqlite3.connect(DB)
     c = conn.cursor()
@@ -452,14 +558,14 @@ def intentar_curacion(player_id, hp, max_hp):
 
 def combate(player_id):
     datos = obtener_datos_jugador(player_id)
-    nombre, hp, max_hp, ryos, atk, df, mag, level, xp, zone_id = datos
+    nombre, hp, max_hp, ryos, atk, df, mag, level, xp, current_zone, max_zone = datos
 
     if hp <= 0:
         print("\n💀 No puedes pelear sin vida. ¡Descansa en la ciudad primero!")
         sys.stdout.flush()
         return
 
-    mob = obtener_monstruos_zona(zone_id)
+    mob = obtener_monstruos_zona(current_zone)
     monster_id, enemigo_nombre, enemigo_hp, enemigo_atk, enemigo_def, enemigo_xp, is_boss = mob
 
     print(f"\n⚔️ ¡Un {enemigo_nombre} salvaje ha aparecido! (HP: {enemigo_hp} | ATK: {enemigo_atk})")
@@ -476,23 +582,35 @@ def combate(player_id):
         acc = input("Elige tu acción: ")
 
         if acc == "1":
-            daño_jugador = max(1, atk - enemigo_def)
-            enemigo_hp -= daño_jugador
-            print(f"💥 Atacas al {enemigo_nombre} y le infliges {daño_jugador} de daño.")
+            # Todo lo de aquí adentro debe tener exactamente 4 espacios al inicio
+            daño_jugador = max(1, atk_total - enemigo_def)
+            daño_final, crit = calcular_daño(atk_total, enemigo_def, player_crit_rate, player_crit_dmg)
+            enemigo_hp -= daño_final
+            if crit:
+                print(f"🔥 ¡CRÍTICO! Infliges {daño_final} de daño.")
+            else:
+                print(f"⚔️ Atacas al {enemigo_nombre} y le infliges {daño_final} de daño.")
             if enemigo_hp <= 0: break
             daño_enemigo = max(1, enemigo_atk - df)
-            hp -= daño_enemigo
-            print(f"⚠️ El {enemigo_nombre} te devuelve el golpe y te hace {daño_enemigo} de daño.")
+            # --- Turno del Monstruo ---
+            daño_recibido, crit_enemigo = calcular_daño(enemigo_atk, df, enemigo_crit_rate, enemigo_crit_dmg)
+            hp -= daño_recibido
+            if crit_enemigo:
+                print(f"💀 ¡GOLPE CRÍTICO DEL ENEMIGO! Te hace {daño_recibido} de daño.")
+            else:
+                print(f"⚠️ El {enemigo_nombre} te devuelve el golpe y te hace {daño_recibido} de daño.")
 
-        elif acc == "2":
+        elif acc == "2":  # <-- mismo nivel que el if de arriba, sin espacios extra
             hp, exito = intentar_curacion(player_id, hp, max_hp)
             if exito:
                 daño_enemigo = max(1, enemigo_atk - df)
                 hp -= daño_enemigo
                 print(f"⚠️ El {enemigo_nombre} aprovechó tu distracción y te hizo {daño_enemigo} de daño.")
 
-        elif acc == "3":
-            if random.random() > 0.3:
+        elif acc == "3":  # <-- también mismo nivel
+            if is_boss == 1:
+                print("❌ ¡No puedes huir de la batalla contra un Jefe!")
+            elif random.random() > 0.3:
                 print("💨 ¡Lograste escapar del combate!")
                 sys.stdout.flush()
                 actualizar_hp_ryos_xp(player_id, hp, ryos, xp)
@@ -502,7 +620,8 @@ def combate(player_id):
                 daño_enemigo = max(1, enemigo_atk - df)
                 hp -= daño_enemigo
                 print(f"⚠️ El {enemigo_nombre} te golpea por la espalda haciendo {daño_enemigo} de daño.")
-        else:
+
+        else:  # <-- también mismo nivel
             print("Acción inválida. Pierdes el turno.")
         sys.stdout.flush()
 
@@ -512,33 +631,69 @@ def combate(player_id):
     else:
         conn = sqlite3.connect(DB)
         c = conn.cursor()
-        c.execute("SELECT RyosMin, RyosMax, XPMin, XPMax FROM Zones WHERE ZoneID =?", (zone_id,))
+        c.execute("SELECT RyosMin, RyosMax, XPMin, XPMax FROM Zones WHERE ZoneID =?", (current_zone,))
         ryos_min, ryos_max, xp_min, xp_max = c.fetchone()
         conn.close()
+        
         recompensa_ryos = random.randint(ryos_min, ryos_max)
         recompensa_xp = random.randint(xp_min, xp_max)
         ryos += recompensa_ryos
         xp += recompensa_xp
+        
         print(f"\n🎉 ¡Victoria! Derrotaste al {enemigo_nombre}.")
         print(f"💰 Encontraste {recompensa_ryos} Ryos.")
         print(f"⭐ Ganaste {recompensa_xp} XP.")
 
-        # Checa si sube de nivel
         subir_nivel_si_aplica(player_id, xp, level)
         tirar_drop(monster_id, player_id)
         actualizar_hp_ryos_xp(player_id, hp, ryos, xp)
+        
+        # --- LÓGICA DE AVANCE AL MATAR AL JEFE ---
+        if is_boss == 1:
+            conn = sqlite3.connect(DB)
+            c = conn.cursor()
+            
+            # Si mataste al jefe de tu zona máxima actual, desbloqueas la siguiente
+            if current_zone == max_zone and current_zone < 10:
+                max_zone += 1
+                c.execute("UPDATE Players SET MaxZone = ? WHERE PlayerID = ?", (max_zone, player_id))
+                conn.commit()
+                print(f"\n🏆 ¡Felicidades! Has derrotado al jefe de la zona.")
+                print(f"🔓 ¡HAS DESBLOQUEADO LA ZONA {max_zone}!")
+            
+            conn.close()
+
+            # Preguntar si quiere avanzar si hay una zona siguiente
+            if current_zone < 10:
+                avanzar = input(f"\n¿Quieres avanzar a la Zona {current_zone + 1} ahora? (s/n): ").strip().lower()
+                if avanzar == 's':
+                    current_zone += 1
+                    conn = sqlite3.connect(DB)
+                    c = conn.cursor()
+                    c.execute("UPDATE Players SET CurrentZone = ? WHERE PlayerID = ?", (current_zone, player_id))
+                    conn.commit()
+                    conn.close()
+                    print(f"\n🚶‍♂️ Viajaste a la Zona {current_zone}.")
+        
         sys.stdout.flush()
 
 def visitar_ciudad(player_id):
     while True:
         datos = obtener_datos_jugador(player_id)
-        nombre, hp, max_hp, ryos, atk, df, mag, level, xp, zone_id = datos
+        nombre, hp, max_hp, ryos, atk, df, mag, level, xp, current_zone, max_zone = datos
 
-        print(f"\n=== 🛡️ {nombre} | HP: {hp}/{max_hp} | Ryos: {ryos} | NV: {level} ===")
+        print(f"\n=== 🛡️ {nombre} | HP: {hp}/{max_hp} | Ryos: {ryos} | NV: {level} | ZONA ACTUAL: {current_zone} ===")
         print("1. Descansar en la Posada (Recuperas HP gratis)")
         print("2. Salir a las afueras (Buscar Combate ⚔️)")
         print("3. Usar una Poción de Supervivencia")
-        print("4. Salir del juego")
+        print("4. Cambiar de Zona (Viaje Rápido 🗺️)")
+        print("5. Salir del juego")
+        # Dentro del while True de visitar_ciudad:
+        print("6. Visitar Tienda 💰")
+        print("7. Gestionar Equipo ⚔️")
+        print("8. Viajar/Cambiar de Zona 🗺️")
+        # ... lógica de los nuevos inputs ...
+
         sys.stdout.flush()
 
         opcion = input("Elige una opción: ")
@@ -553,6 +708,26 @@ def visitar_ciudad(player_id):
             if exito:
                 actualizar_hp_ryos_xp(player_id, hp, ryos, xp)
         elif opcion == "4":
+            print(f"\n=== 🗺️ Viaje Rápido (Zonas Desbloqueadas: {max_zone}) ===")
+            for i in range(1, max_zone + 1):
+                # Aquí podes agregar el nombre de las zonas si lo extraes de la BD
+                print(f"{i}. Viajar a la Zona {i}")
+            print("0. Cancelar")
+            sys.stdout.flush()
+            try:
+                z_elegida = int(input("Elige el número de zona al que quieres viajar: "))
+                if 1 <= z_elegida <= max_zone:
+                    conn = sqlite3.connect(DB)
+                    c = conn.cursor()
+                    c.execute("UPDATE Players SET CurrentZone = ? WHERE PlayerID = ?", (z_elegida, player_id))
+                    conn.commit()
+                    conn.close()
+                    print(f"✈️ Has viajado a la Zona {z_elegida}.")
+                elif z_elegida != 0:
+                    print("❌ Zona no válida o aún bloqueada.")
+            except ValueError:
+                print("❌ Ingresa un número válido.")
+        elif opcion == "5":
             print("¡Gracias por jugar! Guardando partida...")
             sys.stdout.flush()
             break
@@ -583,9 +758,10 @@ def crear_personaje():
     base_stats = {1: [120, 15, 10, 5], 2: [80, 8, 5, 20], 3: [100, 12, 7, 8]}
     hp, atk, df, mag = base_stats[clase_id]
 
+    # Modificado para incluir CurrentZone y MaxZone al inicio
     c.execute("""
-        INSERT INTO Players (Name, HP, MaxHP, Ryos, ATK, DEF, MAG, Level, XP)
-        VALUES (?,?,?,?,?,?,?, 1, 0)
+        INSERT INTO Players (Name, HP, MaxHP, Ryos, ATK, DEF, MAG, Level, XP, CurrentZone, MaxZone)
+        VALUES (?,?,?,?,?,?,?, 1, 0, 1, 1)
     """, (nombre, hp, hp, 100, atk, df, mag))
 
     last_id = c.lastrowid
@@ -603,3 +779,5 @@ if __name__ == "__main__":
     print("=== ¡Bienvenido a JuegoNew RPG! ===")
     sys.stdout.flush()
     crear_personaje()
+
+#adrii terminado
