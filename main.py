@@ -66,19 +66,24 @@ def init_db():
             ZoneID INTEGER PRIMARY KEY, ZoneName TEXT, ReqLevel INTEGER,
             RyosMin INTEGER, RyosMax INTEGER, XPMin INTEGER, XPMax INTEGER)""")
 
-        c.execute("""CREATE TABLE IF NOT EXISTS Monsters(
-            MonsterID INTEGER PRIMARY KEY, 
-            MonsterName TEXT, 
-            ZoneID INTEGER,
-            HP INTEGER, 
-            ATK INTEGER, 
-            DEF INTEGER, 
-            XP INTEGER, 
-            IsBoss INTEGER DEFAULT 0,
-            CritRate INTEGER DEFAULT 5,
-            CritDmg REAL DEFAULT 1.5,
-            FOREIGN KEY(ZoneID) REFERENCES Zones(ZoneID) ON DELETE SET NULL
-        )""")
+        c.execute('''CREATE TABLE IF NOT EXISTS Monsters (
+                MonsterID INTEGER PRIMARY KEY,
+                Name TEXT,
+                ZoneID INTEGER,
+                HP INTEGER,
+                ATK INTEGER,
+                DEF INTEGER,
+                STR INTEGER,
+                AGI INTEGER,
+                DEX INTEGER,
+                Accuracy INTEGER,
+                Evasion INTEGER,
+                CritRate INTEGER,
+                CritDmg INTEGER,
+                ExpReward INTEGER,
+                IsBoss INTEGER
+            )''')
+
 
         c.execute("""CREATE TABLE IF NOT EXISTS MonsterDrops(
             DropID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -106,11 +111,7 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Classes VALUES (2, 'Mago')")
         c.execute("INSERT OR IGNORE INTO Classes VALUES (3, 'Arquero')")
         c.execute("INSERT OR IGNORE INTO Cities VALUES (1, 'Villa Amanecer')")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (100, 'Poción de Supervivencia', 'Consumible', 25)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (200, 'Hoja Espectral del Otoño', 'Material Forja', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (201, 'Acero Tamahagane', 'Material', 15)")
-
-        # ==================== ZONA 1: BOSQUE AMANECER | NV 1-5 ====================
+                # ==================== ZONA 1: BOSQUE AMANECER | NV 1-5 ====================
         c.execute("INSERT OR IGNORE INTO Zones VALUES (1, 'Bosque Amanecer', 1, 5, 10, 10, 20)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (300, 'Gel Viscoso', 'Material', 5)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (301, 'Colmillo de Lobo', 'Material', 8)")
@@ -121,15 +122,10 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (400, 'Colmillada del Alfa', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (401, 'Báculo del Alfa', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (402, 'Arco del Alfa', 'Arma Arquero', 0)")
-        
-        c.execute("INSERT OR IGNORE INTO WeaponStats VALUES (400, 5, 0)") 
-        c.execute("INSERT OR IGNORE INTO WeaponStats VALUES (401, 0, 8)") 
-
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (1, 'Slime Verde', 1, 20, 5, 2, 10, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (2, 'Lobo Salvaje', 1, 35, 8, 3, 15, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (3, 'Goblin Ratero', 1, 40, 9, 4, 18, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss, CritRate, CritDmg) VALUES (4, 'Lobo Alfa', 1, 120, 18, 8, 80, 1, 10, 1.8)")
-        
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (1, 'Slime Verde', 1, 20, 5, 2, 3, 1, 1, 80, 0, 0, 100, 10, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (2, 'Lobo Salvaje', 1, 35, 8, 3, 6, 5, 4, 85, 5, 5, 120, 15, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (3, 'Goblin Ratero', 1, 40, 9, 4, 7, 6, 6, 90, 8, 5, 130, 18, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (4, 'Lobo Alfa', 1, 120, 18, 8, 15, 12, 10, 100, 10, 10, 150, 80, 1)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 1, 300, 60)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 2, 301, 50)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 2, 302, 30)")
@@ -137,7 +133,6 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 3, 303, 20)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 4, 304, 100)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 4, 305, 100)")
-        
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 400, 1, 304, 1, 305, 1, 201, 10, 80)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 401, 2, 304, 1, 305, 1, 200, 5, 80)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 402, 3, 304, 1, 305, 1, 302, 8, 80)")
@@ -153,10 +148,10 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (420, 'Hacha del Rey Goblin', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (421, 'Báculo de Hierro', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (422, 'Ballesta de Minas', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (5, 'Rata Gigante', 2, 45, 10, 3, 25, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (6, 'Murciélago Caverna', 2, 40, 11, 4, 28, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (7, 'Goblin Minero', 2, 50, 12, 5, 35, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss, CritRate, CritDmg) VALUES (8, 'Rey Goblin', 2, 150, 22, 10, 120, 1, 10, 1.8)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (5, 'Rata Gigante', 2, 45, 10, 3, 8, 10, 8, 92, 10, 5, 130, 25, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (6, 'Murciélago Caverna', 2, 40, 11, 4, 7, 15, 12, 95, 15, 8, 140, 28, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (7, 'Goblin Minero', 2, 50, 12, 5, 10, 8, 8, 95, 8, 5, 140, 35, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (8, 'Rey Goblin', 2, 150, 22, 10, 20, 15, 18, 110, 12, 12, 160, 120, 1)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 5, 311, 60)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 6, 310, 50)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 7, 312, 40)")
@@ -178,10 +173,10 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (440, 'Lanza del Anciano', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (441, 'Báculo Tóxico', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (442, 'Arco del Pantano', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (9, 'Rana Venenosa', 3, 60, 13, 4, 45, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (10, 'Zombi Ahogado', 3, 70, 15, 6, 55, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (11, 'Espíritu Pantano', 3, 65, 16, 5, 60, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss, CritRate, CritDmg) VALUES (12, 'Anciano del Pantano', 3, 180, 25, 12, 180, 1, 10, 1.8)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (9, 'Rana Venenosa', 3, 60, 13, 4, 11, 14, 12, 100, 12, 5, 140, 45, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (10, 'Zombi Ahogado', 3, 70, 15, 6, 14, 4, 6, 90, 0, 2, 120, 55, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (11, 'Espíritu Pantano', 3, 65, 16, 5, 12, 18, 15, 105, 20, 8, 150, 60, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (12, 'Anciano del Pantano', 3, 180, 25, 12, 22, 10, 20, 115, 15, 15, 170, 180, 1)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 9, 320, 60)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 10, 321, 50)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 11, 322, 40)")
@@ -202,10 +197,10 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (450, 'Espadón Ígneo', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (451, 'Cetro de Ifrit', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (452, 'Arco de Llamas', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (13, 'Esqueleto Ígneo', 4, 80, 18, 6, 80, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (14, 'Salamandra', 4, 75, 20, 7, 85, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (15, 'Golem de Ceniza', 4, 100, 22, 10, 100, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss, CritRate, CritDmg) VALUES (16, 'Ifrit Menor', 4, 220, 30, 15, 250, 1, 12, 1.8)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (13, 'Esqueleto Ígneo', 4, 80, 18, 6, 16, 12, 15, 105, 10, 10, 150, 80, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (14, 'Salamandra', 4, 75, 20, 7, 18, 20, 18, 110, 15, 12, 160, 85, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (15, 'Golem de Ceniza', 4, 100, 22, 10, 25, 5, 8, 95, 2, 5, 140, 100, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (16, 'Ifrit Menor', 4, 220, 30, 15, 32, 22, 25, 125, 15, 18, 180, 250, 1)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 13, 330, 50)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 14, 331, 60)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 15, 332, 40)")
@@ -225,10 +220,10 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (460, 'Hacha Glacial', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (461, 'Báculo de Escarcha', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (462, 'Arco Glacial', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (17, 'Lobo de Hielo', 5, 100, 23, 8, 110, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (18, 'Duende Polar', 5, 95, 25, 9, 120, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (19, 'Yeti Joven', 5, 130, 28, 12, 140, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss, CritRate, CritDmg) VALUES (20, 'Yeti Anciano', 5, 280, 38, 18, 350, 1, 12, 1.8)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (17, 'Lobo de Hielo', 5, 100, 23, 8, 20, 25, 22, 115, 18, 12, 160, 110, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (18, 'Duende Polar', 5, 95, 25, 9, 22, 22, 20, 115, 15, 15, 165, 120, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (19, 'Yeti Joven', 5, 130, 28, 12, 28, 12, 15, 110, 8, 10, 150, 140, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (20, 'Yeti Anciano', 5, 280, 38, 18, 40, 18, 28, 135, 12, 20, 190, 350, 1)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 17, 342, 50)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 18, 340, 60)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 19, 341, 45)")
@@ -248,10 +243,10 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (470, 'Cimitarra Carmesí', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (471, 'Báculo de Arena', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (472, 'Arco del Desierto', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (21, 'Escorpión de Arena', 6, 125, 28, 10, 150, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (22, 'Bandido del Desierto', 6, 120, 30, 11, 160, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (23, 'Momia Guardiana', 6, 160, 33, 14, 180, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss, CritRate, CritDmg) VALUES (24, 'Faraón Maldito', 6, 350, 45, 22, 500, 1, 12, 2.0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (21, 'Escorpión de Arena', 6, 125, 28, 10, 25, 20, 24, 120, 15, 15, 170, 150, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (22, 'Bandido del Desierto', 6, 120, 30, 11, 28, 28, 26, 125, 20, 18, 180, 160, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (23, 'Momia Guardiana', 6, 160, 33, 14, 32, 10, 18, 115, 5, 10, 150, 180, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (24, 'Faraón Maldito', 6, 350, 45, 22, 45, 25, 35, 145, 18, 22, 200, 500, 1)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 21, 350, 55)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 22, 351, 50)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 23, 352, 40)")
@@ -271,10 +266,10 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (480, 'Mandoble del Trueno', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (481, 'Báculo del Rayo', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (482, 'Arco del Wyvern', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (25, 'Arpía', 7, 150, 33, 12, 200, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (26, 'Gólem de Roca', 7, 190, 36, 16, 220, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (27, 'Wyvern Joven', 7, 210, 40, 18, 250, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss, CritRate, CritDmg) VALUES (28, 'Rey Wyvern', 7, 420, 52, 25, 700, 1, 15, 2.0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (25, 'Arpía', 7, 150, 33, 12, 28, 35, 32, 135, 25, 18, 180, 200, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (26, 'Gólem de Roca', 7, 190, 36, 16, 40, 8, 15, 120, 2, 8, 160, 220, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (27, 'Wyvern Joven', 7, 210, 40, 18, 38, 30, 28, 130, 15, 20, 190, 250, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (28, 'Rey Wyvern', 7, 420, 52, 25, 55, 40, 45, 160, 22, 25, 210, 700, 1)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 25, 360, 55)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 26, 361, 50)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 27, 362, 45)")
@@ -294,10 +289,10 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (490, 'Espada Profana', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (491, 'Báculo Oscuro', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (492, 'Arco Sombrio', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (29, 'Caballero Caído', 8, 180, 38, 14, 280, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (30, 'Sacerdote Oscuro', 8, 170, 42, 15, 300, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (31, 'Gárgola Viviente', 8, 230, 45, 20, 320, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss, CritRate, CritDmg) VALUES (32, 'Sacerdote Caído', 8, 500, 60, 28, 1000, 1, 15, 2.0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (29, 'Caballero Caído', 8, 180, 38, 14, 35, 25, 30, 135, 12, 15, 175, 280, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (30, 'Sacerdote Oscuro', 8, 170, 42, 15, 28, 28, 35, 145, 18, 22, 190, 300, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (31, 'Gárgola Viviente', 8, 230, 45, 20, 45, 20, 25, 130, 10, 18, 185, 320, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (32, 'Sacerdote Caído', 8, 500, 60, 28, 60, 35, 50, 170, 20, 28, 220, 1000, 1)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 29, 370, 50)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 30, 371, 55)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 31, 372, 45)")
@@ -317,10 +312,10 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (500, 'Espada de Cristal', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (501, 'Báculo Prismático', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (502, 'Arco de Cristal', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (33, 'Araña de Cristal', 9, 210, 43, 16, 400, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (34, 'Slime Prismático', 9, 200, 46, 18, 420, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (35, 'Golem de Cristal', 9, 270, 50, 24, 450, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss, CritRate, CritDmg) VALUES (36, 'Dragón de Cristal', 9, 600, 68, 32, 1500, 1, 15, 2.0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (33, 'Araña de Cristal', 9, 210, 43, 16, 38, 42, 40, 150, 28, 22, 195, 400, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (34, 'Slime Prismático', 9, 200, 46, 18, 40, 30, 38, 145, 20, 20, 190, 420, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (35, 'Golem de Cristal', 9, 270, 50, 24, 55, 15, 25, 140, 5, 15, 180, 450, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (36, 'Dragón de Cristal', 9, 600, 68, 32, 75, 45, 60, 185, 25, 30, 240, 1500, 1)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 33, 380, 50)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 34, 381, 55)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 35, 382, 40)")
@@ -340,14 +335,18 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (510, 'Espada del Caos', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (511, 'Báculo del Caos', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (512, 'Arco del Abismo', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (37, 'Demonio Menor', 10, 250, 48, 18, 600, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (38, 'Caballero del Caos', 10, 280, 52, 22, 650, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss) VALUES (39, 'Archidemonio', 10, 320, 56, 26, 700, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters (MonsterID, MonsterName, ZoneID, HP, ATK, DEF, XP, IsBoss, CritRate, CritDmg) VALUES (40, 'Señor del Caos', 10, 800, 75, 35, 3000, 1, 20, 2.5)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (37, 'Demonio Menor', 10, 250, 48, 18, 45, 40, 45, 155, 22, 25, 200, 600, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (38, 'Caballero del Caos', 10, 280, 52, 22, 55, 35, 40, 160, 18, 22, 195, 650, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (39, 'Archidemonio', 10, 320, 56, 26, 65, 50, 55, 170, 25, 28, 220, 700, 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (40, 'Señor del Caos', 10, 800, 75, 35, 95, 65, 80, 210, 30, 35, 250, 3000, 1)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 37, 390, 50)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 38, 391, 55)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 39, 392, 40)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 40, 393, 100)")
+        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 40, 394, 100)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 510, 1, 393, 1, 394, 1, 392, 40, 40)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 511, 2, 393, 1, 394, 1, 392, 40, 40)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 512, 3, 393, 1, 394, 1, 392, 40, 40)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 40, 394, 100)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 510, 1, 393, 1, 394, 1, 392, 40, 40)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 511, 2, 393, 1, 394, 1, 392, 40, 40)")
@@ -705,8 +704,10 @@ def combate(player_id):
         return
 
     mob = obtener_monstruos_zona(current_zone)
-    monster_id, enemigo_nombre, enemigo_hp, enemigo_atk, enemigo_def, enemigo_xp, is_boss, enemigo_crit_rate, enemigo_crit_dmg = mob
-
+    # Asegúrate de que tu fetch devuelva todos los nuevos valores
+    c.execute("SELECT HP, ATK, DEF, STR, AGI, DEX, Accuracy, Evasion, CritRate, CritDmg FROM Monsters WHERE MonsterID = ?", (id_monstruo,))
+    datos = c.fetchone()
+    # Ahora mapeas estos datos a variables que tu función de combate pueda procesar
     atk_total, mag_total = obtener_poder_total(player_id)
 
     print(f"\n⚔️ ¡Un {enemigo_nombre} salvaje ha aparecido! (HP: {enemigo_hp} | ATK: {enemigo_atk})")
@@ -811,6 +812,7 @@ def combate(player_id):
         sys.stdout.flush()
 
 def visitar_ciudad(player_id):
+
     while True:
         datos = obtener_datos_jugador(player_id)
         nombre, hp, max_hp, ryos, atk, df, mag, level, xp, current_zone, max_zone, _, _ = datos
