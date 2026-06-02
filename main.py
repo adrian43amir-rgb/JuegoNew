@@ -35,14 +35,6 @@ def init_db():
             Evasion INTEGER DEFAULT 5
         )""")
 
-
-        c.execute("""CREATE TABLE IF NOT EXISTS WeaponStats(
-            ItemID INTEGER PRIMARY KEY,
-            AtkBonus INTEGER DEFAULT 0,
-            MagBonus INTEGER DEFAULT 0,
-            FOREIGN KEY(ItemID) REFERENCES Items(ItemID)
-        )""")
-
         c.execute("""CREATE TABLE IF NOT EXISTS Classes(
             ClassID INTEGER PRIMARY KEY, ClassName TEXT)""")
 
@@ -72,7 +64,7 @@ def init_db():
             ZoneID INTEGER PRIMARY KEY, ZoneName TEXT, ReqLevel INTEGER,
             RyosMin INTEGER, RyosMax INTEGER, XPMin INTEGER, XPMax INTEGER)""")
 
-        c.execute('''CREATE TABLE IF NOT EXISTS Monsters (
+        c.execute("""CREATE TABLE IF NOT EXISTS Monsters (
                 MonsterID INTEGER PRIMARY KEY,
                 Name TEXT,
                 ZoneID INTEGER,
@@ -88,7 +80,7 @@ def init_db():
                 CritDmg INTEGER,
                 ExpReward INTEGER,
                 IsBoss INTEGER
-            )''')
+            )""")
 
         c.execute("""CREATE TABLE IF NOT EXISTS MonsterDrops(
             DropID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -125,22 +117,29 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (303, 'Daga Oxidada', 'Material', 10)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (304, 'Colmillo del Alfa', 'Material Boss', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (305, 'Esencia Salvaje', 'Material Boss', 0)")
+        
+        # Armas e Items resultantes
         c.execute("INSERT OR IGNORE INTO Items VALUES (400, 'Colmillada del Alfa', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (401, 'Báculo del Alfa', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (402, 'Arco del Alfa', 'Arma Arquero', 0)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (31, 'Armadura del Alfa', 'Armadura', 0)")
+
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (1, 'Slime Verde', 1, 20, 5, 2, 3, 1, 1, 80, 0, 0, 100, 10, 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (2, 'Lobo Salvaje', 1, 35, 8, 3, 6, 5, 4, 85, 5, 5, 120, 15, 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (3, 'Goblin Ratero', 1, 40, 9, 4, 7, 6, 6, 90, 8, 5, 130, 18, 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (4, 'Lobo Alfa', 1, 120, 18, 8, 15, 12, 10, 100, 10, 10, 150, 80, 1)")
+        
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 1, 300, 60)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 2, 301, 50)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 2, 302, 30)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 3, 303, 20)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 4, 304, 100)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 4, 305, 100)")
+        
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 400, 1, 304, 1, 305, 1, 300, 10, 80)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 401, 2, 304, 1, 305, 1, 300, 5, 80)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 402, 3, 304, 1, 305, 1, 302, 8, 80)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 31, 1, 304, 1, 305, 1, 302, 5, 80)")
 
         # ==================== ZONA 2: MINAS ABANDONADAS | NV 6-10 ====================
         c.execute("INSERT OR IGNORE INTO Zones VALUES (2, 'Minas Abandonadas', 6, 15, 25, 30, 50)")
@@ -150,24 +149,31 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (313, 'Polvo de Piedra', 'Material', 12)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (314, 'Corona de Hierro', 'Material Boss', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (315, 'Esencia de Mando', 'Material Boss', 0)")
+        
         c.execute("INSERT OR IGNORE INTO Items VALUES (420, 'Hacha del Rey Goblin', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (421, 'Báculo de Hierro', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (422, 'Ballesta de Minas', 'Arma Arquero', 0)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (32, 'Armadura de Hierro', 'Armadura', 0)")
+
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (5, 'Rata Gigante', 2, 45, 10, 3, 8, 10, 8, 92, 10, 5, 130, 25, 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (6, 'Murciélago Caverna', 2, 40, 11, 4, 7, 15, 12, 95, 15, 8, 140, 28, 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (7, 'Goblin Minero', 2, 50, 12, 5, 10, 8, 8, 95, 8, 5, 140, 35, 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (8, 'Rey Goblin', 2, 150, 22, 10, 20, 15, 18, 110, 12, 12, 160, 120, 1)")
+        
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 5, 311, 60)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 6, 310, 50)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 7, 312, 40)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 7, 313, 30)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 8, 314, 100)")
         c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 8, 315, 100)")
+        
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 420, 1, 314, 1, 315, 1, 310, 15, 75)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 421, 2, 314, 1, 315, 1, 313, 10, 75)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 422, 3, 314, 1, 315, 1, 312, 12, 75)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 32, 1, 314, 1, 315, 1, 312, 10, 75)")
 
-        # ==================== ZONA 3: PANTANO SOMBRÍO | NV 11-15 ====================
+        # ==================== ZONAS RESTANTES (3 a 10) ADICIONES DE ARMADURAS ====================
+        # Zona 3
         c.execute("INSERT OR IGNORE INTO Zones VALUES (3, 'Pantano Sombrío', 11, 30, 45, 60, 90)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (320, 'Glándula Venenosa', 'Material', 15)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (321, 'Tela Empapada', 'Material', 12)")
@@ -178,21 +184,20 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (440, 'Lanza del Anciano', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (441, 'Báculo Tóxico', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (442, 'Arco del Pantano', 'Arma Arquero', 0)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (33, 'Armadura del Pantano', 'Armadura', 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (9, 'Rana Venenosa', 3, 60, 13, 4, 11, 14, 12, 100, 12, 5, 140, 45, 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (10, 'Zombi Ahogado', 3, 70, 15, 6, 14, 4, 6, 90, 0, 2, 120, 55, 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (11, 'Espíritu Pantano', 3, 65, 16, 5, 12, 18, 15, 105, 20, 8, 150, 60, 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (12, 'Anciano del Pantano', 3, 180, 25, 12, 22, 10, 20, 115, 15, 15, 170, 180, 1)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 9, 320, 60)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 10, 321, 50)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 11, 322, 40)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 11, 323, 30)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 12, 324, 100)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 12, 325, 100)")
+        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 9, 320, 60)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 10, 321, 50)")
+        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 11, 322, 40)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 11, 323, 30)")
+        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 12, 324, 100)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 12, 325, 100)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 440, 1, 324, 1, 325, 1, 322, 15, 70)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 441, 2, 324, 1, 325, 1, 322, 15, 70)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 442, 3, 324, 1, 325, 1, 322, 15, 70)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 33, 1, 324, 1, 325, 1, 321, 10, 70)")
 
-        # ==================== ZONA 4: TEMPLO DEL FUEGO | NV 16-20 ====================
+        # Zona 4 a 10 (Se acortan inserciones repetitivas del usuario para asegurar legibilidad estructural, manteniendo consistencia)
         c.execute("INSERT OR IGNORE INTO Zones VALUES (4, 'Templo del Fuego', 16, 50, 70, 100, 140)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (330, 'Escama de Fuego', 'Material', 20)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (331, 'Carbón Puro', 'Material', 18)")
@@ -202,156 +207,64 @@ def init_db():
         c.execute("INSERT OR IGNORE INTO Items VALUES (450, 'Espadón Ígneo', 'Arma Guerrero', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (451, 'Cetro de Ifrit', 'Arma Mago', 0)")
         c.execute("INSERT OR IGNORE INTO Items VALUES (452, 'Arco de Llamas', 'Arma Arquero', 0)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (34, 'Armadura Ígnea', 'Armadura', 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (13, 'Esqueleto Ígneo', 4, 80, 18, 6, 16, 12, 15, 105, 10, 10, 150, 80, 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (14, 'Salamandra', 4, 75, 20, 7, 18, 20, 18, 110, 15, 12, 160, 85, 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (15, 'Golem de Ceniza', 4, 100, 22, 10, 25, 5, 8, 95, 2, 5, 140, 100, 0)")
         c.execute("INSERT OR IGNORE INTO Monsters VALUES (16, 'Ifrit Menor', 4, 220, 30, 15, 32, 22, 25, 125, 15, 18, 180, 250, 1)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 13, 330, 50)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 14, 331, 60)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 15, 332, 40)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 16, 333, 100)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 16, 334, 100)")
+        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 13, 330, 50)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 14, 331, 60)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 15, 332, 40)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 16, 333, 100)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 16, 334, 100)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 450, 1, 333, 1, 334, 1, 332, 15, 70)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 451, 2, 333, 1, 334, 1, 332, 15, 70)")
         c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 452, 3, 333, 1, 334, 1, 332, 15, 70)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 34, 1, 333, 1, 334, 1, 332, 12, 70)")
 
-        # ==================== ZONA 5: BOSQUE HELADO | NV 21-25 ====================
+        # Zona 5
         c.execute("INSERT OR IGNORE INTO Zones VALUES (5, 'Bosque Helado', 21, 70, 100, 140, 200)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (340, 'Pelaje Polar', 'Material', 25)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (341, 'Cristal de Escarcha', 'Material', 22)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (342, 'Colmillo de Hielo', 'Material', 28)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (343, 'Garras de Yeti', 'Material Boss', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (344, 'Esencia Glacial', 'Material Boss', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (460, 'Hacha Glacial', 'Arma Guerrero', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (461, 'Báculo de Escarcha', 'Arma Mago', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (462, 'Arco Glacial', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (17, 'Lobo de Hielo', 5, 100, 23, 8, 20, 25, 22, 115, 18, 12, 160, 110, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (18, 'Duende Polar', 5, 95, 25, 9, 22, 22, 20, 115, 15, 15, 165, 120, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (19, 'Yeti Joven', 5, 130, 28, 12, 28, 12, 15, 110, 8, 10, 150, 140, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (20, 'Yeti Anciano', 5, 280, 38, 18, 40, 18, 28, 135, 12, 20, 190, 350, 1)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 17, 342, 50)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 18, 340, 60)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 19, 341, 45)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 20, 343, 100)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 20, 344, 100)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 460, 1, 343, 1, 344, 1, 341, 18, 65)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 461, 2, 343, 1, 344, 1, 341, 18, 65)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 462, 3, 343, 1, 344, 1, 341, 18, 65)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (340, 'Pelaje Polar', 'Material', 25)"); c.execute("INSERT OR IGNORE INTO Items VALUES (341, 'Cristal de Escarcha', 'Material', 22)"); c.execute("INSERT OR IGNORE INTO Items VALUES (342, 'Colmillo de Hielo', 'Material', 28)"); c.execute("INSERT OR IGNORE INTO Items VALUES (343, 'Garras de Yeti', 'Material Boss', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (344, 'Esencia Glacial', 'Material Boss', 0)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (460, 'Hacha Glacial', 'Arma Guerrero', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (461, 'Báculo de Escarcha', 'Arma Mago', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (462, 'Arco Glacial', 'Arma Arquero', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (35, 'Armadura Glacial', 'Armadura', 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (17, 'Lobo de Hielo', 5, 100, 23, 8, 20, 25, 22, 115, 18, 12, 160, 110, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (18, 'Duende Polar', 5, 95, 25, 9, 22, 22, 20, 115, 15, 15, 165, 120, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (19, 'Yeti Joven', 5, 130, 28, 12, 28, 12, 15, 110, 8, 10, 150, 140, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (20, 'Yeti Anciano', 5, 280, 38, 18, 40, 18, 28, 135, 12, 20, 190, 350, 1)")
+        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 17, 342, 50)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 18, 340, 60)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 19, 341, 45)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 20, 343, 100)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 20, 344, 100)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 460, 1, 343, 1, 344, 1, 341, 18, 65)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 461, 2, 343, 1, 344, 1, 341, 18, 65)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 462, 3, 343, 1, 344, 1, 341, 18, 65)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 35, 1, 343, 1, 344, 1, 340, 12, 65)")
 
-        # ==================== ZONA 6: DESIERTO CARMESÍ | NV 26-30 ====================
+        # Zona 6
         c.execute("INSERT OR IGNORE INTO Zones VALUES (6, 'Desierto Carmesí', 26, 100, 140, 200, 280)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (350, 'Aguijón de Escorpión', 'Material', 30)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (351, 'Sable Oxidado', 'Material', 28)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (352, 'Núcleo de Arena', 'Material', 35)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (353, 'Urna del Faraón', 'Material Boss', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (354, 'Esencia Carmesí', 'Material Boss', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (470, 'Cimitarra Carmesí', 'Arma Guerrero', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (471, 'Báculo de Arena', 'Arma Mago', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (472, 'Arco del Desierto', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (21, 'Escorpión de Arena', 6, 125, 28, 10, 25, 20, 24, 120, 15, 15, 170, 150, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (22, 'Bandido del Desierto', 6, 120, 30, 11, 28, 28, 26, 125, 20, 18, 180, 160, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (23, 'Momia Guardiana', 6, 160, 33, 14, 32, 10, 18, 115, 5, 10, 150, 180, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (24, 'Faraón Maldito', 6, 350, 45, 22, 45, 25, 35, 145, 18, 22, 200, 500, 1)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 21, 350, 55)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 22, 351, 50)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 23, 352, 40)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 24, 353, 100)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 24, 354, 100)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 470, 1, 353, 1, 354, 1, 352, 20, 60)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 471, 2, 353, 1, 354, 1, 352, 20, 60)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 472, 3, 353, 1, 354, 1, 352, 20, 60)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (350, 'Aguijón de Escorpión', 'Material', 30)"); c.execute("INSERT OR IGNORE INTO Items VALUES (351, 'Sable Oxidado', 'Material', 28)"); c.execute("INSERT OR IGNORE INTO Items VALUES (352, 'Núcleo de Arena', 'Material', 35)"); c.execute("INSERT OR IGNORE INTO Items VALUES (353, 'Urna del Faraón', 'Material Boss', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (354, 'Esencia Carmesí', 'Material Boss', 0)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (470, 'Cimitarra Carmesí', 'Arma Guerrero', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (471, 'Báculo de Arena', 'Arma Mago', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (472, 'Arco del Desierto', 'Arma Arquero', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (36, 'Armadura Carmesí', 'Armadura', 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (21, 'Escorpión de Arena', 6, 125, 28, 10, 25, 20, 24, 120, 15, 15, 170, 150, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (22, 'Bandido del Desierto', 6, 120, 30, 11, 28, 28, 26, 125, 20, 18, 180, 160, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (23, 'Momia Guardiana', 6, 160, 33, 14, 32, 10, 18, 115, 5, 10, 150, 180, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (24, 'Faraón Maldito', 6, 350, 45, 22, 45, 25, 35, 145, 18, 22, 200, 500, 1)")
+        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 21, 350, 55)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 22, 351, 50)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 23, 352, 40)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 24, 353, 100)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 24, 354, 100)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 470, 1, 353, 1, 354, 1, 352, 20, 60)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 471, 2, 353, 1, 354, 1, 352, 20, 60)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 472, 3, 353, 1, 354, 1, 352, 20, 60)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 36, 1, 353, 1, 354, 1, 350, 15, 60)")
 
-        # ==================== ZONA 7: MONTAÑA DEL TRUENO | NV 31-35 ====================
+        # Zona 7
         c.execute("INSERT OR IGNORE INTO Zones VALUES (7, 'Montaña del Trueno', 31, 140, 190, 280, 380)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (360, 'Pluma de Arpía', 'Material', 35)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (361, 'Fragmento de Roca', 'Material', 32)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (362, 'Núcleo de Trueno', 'Material', 40)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (363, 'Garra de Wyvern', 'Material Boss', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (364, 'Esencia del Trueno', 'Material Boss', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (480, 'Mandoble del Trueno', 'Arma Guerrero', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (481, 'Báculo del Rayo', 'Arma Mago', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (482, 'Arco del Wyvern', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (25, 'Arpía', 7, 150, 33, 12, 28, 35, 32, 135, 25, 18, 180, 200, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (26, 'Gólem de Roca', 7, 190, 36, 16, 40, 8, 15, 120, 2, 8, 160, 220, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (27, 'Wyvern Joven', 7, 210, 40, 18, 38, 30, 28, 130, 15, 20, 190, 250, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (28, 'Rey Wyvern', 7, 420, 52, 25, 55, 40, 45, 160, 22, 25, 210, 700, 1)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 25, 360, 55)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 26, 361, 50)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 27, 362, 45)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 28, 363, 100)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 28, 364, 100)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 480, 1, 363, 1, 364, 1, 362, 25, 55)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 481, 2, 363, 1, 364, 1, 362, 25, 55)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 482, 3, 363, 1, 364, 1, 362, 25, 55)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (360, 'Pluma de Arpía', 'Material', 35)"); c.execute("INSERT OR IGNORE INTO Items VALUES (361, 'Fragmento de Roca', 'Material', 32)"); c.execute("INSERT OR IGNORE INTO Items VALUES (362, 'Núcleo de Trueno', 'Material', 40)"); c.execute("INSERT OR IGNORE INTO Items VALUES (363, 'Garra de Wyvern', 'Material Boss', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (364, 'Esencia del Trueno', 'Material Boss', 0)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (480, 'Mandoble del Trueno', 'Arma Guerrero', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (481, 'Báculo del Rayo', 'Arma Mago', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (482, 'Arco del Wyvern', 'Arma Arquero', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (37, 'Armadura del Trueno', 'Armadura', 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (25, 'Arpía', 7, 150, 33, 12, 28, 35, 32, 135, 25, 18, 180, 200, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (26, 'Gólem de Roca', 7, 190, 36, 16, 40, 8, 15, 120, 2, 8, 160, 220, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (27, 'Wyvern Joven', 7, 210, 40, 18, 38, 30, 28, 130, 15, 20, 190, 250, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (28, 'Rey Wyvern', 7, 420, 52, 25, 55, 40, 45, 160, 22, 25, 210, 700, 1)")
+        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 25, 360, 55)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 26, 361, 50)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 27, 362, 45)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 28, 363, 100)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 28, 364, 100)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 480, 1, 363, 1, 364, 1, 362, 25, 55)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 481, 2, 363, 1, 364, 1, 362, 25, 55)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 482, 3, 363, 1, 364, 1, 362, 25, 55)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 37, 1, 363, 1, 364, 1, 360, 15, 55)")
 
-        # ==================== ZONA 8: CATEDRAL MALDITA | NV 36-40 ====================
+        # Zona 8
         c.execute("INSERT OR IGNORE INTO Zones VALUES (8, 'Catedral Maldita', 36, 190, 250, 380, 500)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (370, 'Espada Rota', 'Material', 40)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (371, 'Símbolo Sagrado', 'Material', 38)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (372, 'Esencia Fantasmal', 'Material', 45)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (373, 'Cáliz Profano', 'Material Boss', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (374, 'Esencia Oscura', 'Material Boss', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (490, 'Espada Profana', 'Arma Guerrero', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (491, 'Báculo Oscuro', 'Arma Mago', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (492, 'Arco Sombrio', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (29, 'Caballero Caído', 8, 180, 38, 14, 35, 25, 30, 135, 12, 15, 175, 280, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (30, 'Sacerdote Oscuro', 8, 170, 42, 15, 28, 28, 35, 145, 18, 22, 190, 300, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (31, 'Gárgola Viviente', 8, 230, 45, 20, 45, 20, 25, 130, 10, 18, 185, 320, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (32, 'Sacerdote Caído', 8, 500, 60, 28, 60, 35, 50, 170, 20, 28, 220, 1000, 1)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 29, 370, 50)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 30, 371, 55)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 31, 372, 45)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 32, 373, 100)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 32, 374, 100)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 490, 1, 373, 1, 374, 1, 372, 30, 50)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 491, 2, 373, 1, 374, 1, 372, 30, 50)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 492, 3, 373, 1, 374, 1, 372, 30, 50)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (370, 'Espada Rota', 'Material', 40)"); c.execute("INSERT OR IGNORE INTO Items VALUES (371, 'Símbolo Sagrado', 'Material', 38)"); c.execute("INSERT OR IGNORE INTO Items VALUES (372, 'Esencia Fantasmal', 'Material', 45)"); c.execute("INSERT OR IGNORE INTO Items VALUES (373, 'Cáliz Profano', 'Material Boss', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (374, 'Esencia Oscura', 'Material Boss', 0)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (490, 'Espada Profana', 'Arma Guerrero', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (491, 'Báculo Oscuro', 'Arma Mago', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (492, 'Arco Sombrio', 'Arma Arquero', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (38, 'Armadura Profana', 'Armadura', 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (29, 'Caballero Caído', 8, 180, 38, 14, 35, 25, 30, 135, 12, 15, 175, 280, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (30, 'Sacerdote Oscuro', 8, 170, 42, 15, 28, 28, 35, 145, 18, 22, 190, 300, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (31, 'Gárgola Viviente', 8, 230, 45, 20, 45, 20, 25, 130, 10, 18, 185, 320, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (32, 'Sacerdote Caído', 8, 500, 60, 28, 60, 35, 50, 170, 20, 28, 220, 1000, 1)")
+        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 29, 370, 50)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 30, 371, 55)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 31, 372, 45)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 32, 373, 100)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 32, 374, 100)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 490, 1, 373, 1, 374, 1, 372, 30, 50)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 491, 2, 373, 1, 374, 1, 372, 30, 50)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 492, 3, 373, 1, 374, 1, 372, 30, 50)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 38, 1, 373, 1, 374, 1, 370, 20, 50)")
 
-        # ==================== ZONA 9: ABISMO CRISTALINO | NV 41-45 ====================
+        # Zona 9
         c.execute("INSERT OR IGNORE INTO Zones VALUES (9, 'Abismo Cristalino', 41, 250, 320, 500, 650)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (380, 'Seda de Cristal', 'Material', 45)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (381, 'Núcleo Prismático', 'Material', 42)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (382, 'Cristal Puro', 'Material', 50)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (383, 'Escama de Cristal', 'Material Boss', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (384, 'Esencia Prismática', 'Material Boss', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (500, 'Espada de Cristal', 'Arma Guerrero', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (501, 'Báculo Prismático', 'Arma Mago', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (502, 'Arco de Cristal', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (33, 'Araña de Cristal', 9, 210, 43, 16, 38, 42, 40, 150, 28, 22, 195, 400, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (34, 'Slime Prismático', 9, 200, 46, 18, 40, 30, 38, 145, 20, 20, 190, 420, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (35, 'Golem de Cristal', 9, 270, 50, 24, 55, 15, 25, 140, 5, 15, 180, 450, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (36, 'Dragón de Cristal', 9, 600, 68, 32, 75, 45, 60, 185, 25, 30, 240, 1500, 1)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 33, 380, 50)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 34, 381, 55)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 35, 382, 40)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 36, 383, 100)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 36, 384, 100)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 500, 1, 383, 1, 384, 1, 382, 35, 45)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 501, 2, 383, 1, 384, 1, 382, 35, 45)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 502, 3, 383, 1, 384, 1, 382, 35, 45)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (380, 'Seda de Cristal', 'Material', 45)"); c.execute("INSERT OR IGNORE INTO Items VALUES (381, 'Núcleo Prismático', 'Material', 42)"); c.execute("INSERT OR IGNORE INTO Items VALUES (382, 'Cristal Puro', 'Material', 50)"); c.execute("INSERT OR IGNORE INTO Items VALUES (383, 'Escama de Cristal', 'Material Boss', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (384, 'Esencia Prismática', 'Material Boss', 0)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (500, 'Espada de Cristal', 'Arma Guerrero', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (501, 'Báculo Prismático', 'Arma Mago', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (502, 'Arco de Cristal', 'Arma Arquero', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (39, 'Armadura de Cristal', 'Armadura', 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (33, 'Araña de Cristal', 9, 210, 43, 16, 38, 42, 40, 150, 28, 22, 195, 400, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (34, 'Slime Prismático', 9, 200, 46, 18, 40, 30, 38, 145, 20, 20, 190, 420, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (35, 'Golem de Cristal', 9, 270, 50, 24, 55, 15, 25, 140, 5, 15, 180, 450, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (36, 'Dragón de Cristal', 9, 600, 68, 32, 75, 45, 60, 185, 25, 30, 240, 1500, 1)")
+        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 33, 380, 50)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 34, 381, 55)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 35, 382, 40)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 36, 383, 100)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 36, 384, 100)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 500, 1, 383, 1, 384, 1, 382, 35, 45)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 501, 2, 383, 1, 384, 1, 382, 35, 45)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 502, 3, 383, 1, 384, 1, 382, 35, 45)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 39, 1, 383, 1, 384, 1, 382, 20, 45)")
 
-        # ==================== ZONA 10: CIUDADELA DEL CAOS | NV 46-50 ====================
+        # Zona 10
         c.execute("INSERT OR IGNORE INTO Zones VALUES (10, 'Ciudadela del Caos', 46, 320, 400, 650, 800)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (390, 'Cuernos de Demonio', 'Material', 50)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (391, 'Placa del Caos', 'Material', 48)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (392, 'Corazón Demoníaco', 'Material', 60)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (393, 'Corona del Caos', 'Material Boss', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (394, 'Esencia del Caos', 'Material Boss', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (510, 'Espada del Caos', 'Arma Guerrero', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (511, 'Báculo del Caos', 'Arma Mago', 0)")
-        c.execute("INSERT OR IGNORE INTO Items VALUES (512, 'Arco del Abismo', 'Arma Arquero', 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (37, 'Demonio Menor', 10, 250, 48, 18, 45, 40, 45, 155, 22, 25, 200, 600, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (38, 'Caballero del Caos', 10, 280, 52, 22, 55, 35, 40, 160, 18, 22, 195, 650, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (39, 'Archidemonio', 10, 320, 56, 26, 65, 50, 55, 170, 25, 28, 220, 700, 0)")
-        c.execute("INSERT OR IGNORE INTO Monsters VALUES (40, 'Señor del Caos', 10, 800, 75, 35, 95, 65, 80, 210, 30, 35, 250, 3000, 1)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 37, 390, 50)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 38, 391, 55)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 39, 392, 40)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 40, 393, 100)")
-        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 40, 394, 100)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 510, 1, 393, 1, 394, 1, 392, 40, 40)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 511, 2, 393, 1, 394, 1, 392, 40, 40)")
-        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 512, 3, 393, 1, 394, 1, 392, 40, 40)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (390, 'Cuernos de Demonio', 'Material', 50)"); c.execute("INSERT OR IGNORE INTO Items VALUES (391, 'Placa del Caos', 'Material', 48)"); c.execute("INSERT OR IGNORE INTO Items VALUES (392, 'Corazón Demoníaco', 'Material', 60)"); c.execute("INSERT OR IGNORE INTO Items VALUES (393, 'Corona del Caos', 'Material Boss', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (394, 'Esencia del Caos', 'Material Boss', 0)")
+        c.execute("INSERT OR IGNORE INTO Items VALUES (510, 'Espada del Caos', 'Arma Guerrero', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (511, 'Báculo del Caos', 'Arma Mago', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (512, 'Arco del Abismo', 'Arma Arquero', 0)"); c.execute("INSERT OR IGNORE INTO Items VALUES (40, 'Armadura del Caos', 'Armadura', 0)")
+        c.execute("INSERT OR IGNORE INTO Monsters VALUES (37, 'Demonio Menor', 10, 250, 48, 18, 45, 40, 45, 155, 22, 25, 200, 600, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (38, 'Caballero del Caos', 10, 280, 52, 22, 55, 35, 40, 160, 18, 22, 195, 650, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (39, 'Archidemonio', 10, 320, 56, 26, 65, 50, 55, 170, 25, 28, 220, 700, 0)"); c.execute("INSERT OR IGNORE INTO Monsters VALUES (40, 'Señor del Caos', 10, 800, 75, 35, 95, 65, 80, 210, 30, 35, 250, 3000, 1)")
+        c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 37, 390, 50)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 38, 391, 55)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 39, 392, 40)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 40, 393, 100)"); c.execute("INSERT OR IGNORE INTO MonsterDrops VALUES (NULL, 40, 394, 100)")
+        c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 510, 1, 393, 1, 394, 1, 392, 40, 40)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 511, 2, 393, 1, 394, 1, 392, 40, 40)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 512, 3, 393, 1, 394, 1, 392, 40, 40)"); c.execute("INSERT OR IGNORE INTO CraftingRecipes VALUES (NULL, 40, 1, 393, 1, 394, 1, 391, 25, 40)")
 
         conn.commit()
         print("✅ Base de datos inicializada correctamente.")
@@ -365,11 +278,7 @@ def init_db():
 def inicializar_stats_forja():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    
-    # Forzamos la eliminación de la tabla vieja si quedó guardada con la estructura anterior
     c.execute("DROP TABLE IF EXISTS WeaponStats")
-    
-    # Creamos la tabla asegurando las 9 columnas (WeaponID + 8 estatus de combate)
     c.execute("""
         CREATE TABLE IF NOT EXISTS WeaponStats (
             WeaponID INTEGER PRIMARY KEY,
@@ -380,75 +289,77 @@ def inicializar_stats_forja():
             Accuracy INTEGER DEFAULT 0,
             Evasion INTEGER DEFAULT 0,
             CritRate INTEGER DEFAULT 0,
-            CritDmg INTEGER DEFAULT 0,
+            CritDmg REAL DEFAULT 0.0,
             FOREIGN KEY(WeaponID) REFERENCES Items(ItemID)
         )
     """)
-    
-    # Lista con el balance ascendente y progresivo para las 30 armas
-    # Estructura: (WeaponID, HP, ATK, DF, MAG, Accuracy, Evasion, CritRate, CritDmg)
+    # REPARADO: IDs mapeados a los verdaderos IDs de Items asignados en init_db
     armas_stats = [
-        # === ⚪ NIVEL 1: ARMAS BÁSICAS (Zonas 1 a 3) ===
-        # --- ZONA 1: Bosque Amanecer ---
-        (1, 20, 15, 5, 0, 0, 0, 0, 0),       # Colmillada del Alfa (Guerrero)
-        (2, 10, 16, 2, 0, 0, 0, 0, 0),       # Arco del Alfa (Arquero)
-        (3, 15, 0, 3, 18, 0, 0, 0, 0),       # Báculo del Alfa (Mago)
-        # --- ZONA 2: Minas Abandonadas ---
-        (4, 40, 35, 12, 0, 0, 0, 0, 0),      # Hacha del Rey Goblin (Guerrero)
-        (5, 25, 36, 6, 0, 0, 0, 0, 0),       # Ballesta de Minas (Arquero)
-        (6, 30, 0, 8, 40, 0, 0, 0, 0),       # Báculo de Hierro (Mago)
-        # --- ZONA 3: Pantano Sombrío ---
-        (7, 70, 55, 20, 0, 0, 0, 0, 0),      # Lanza del Anciano (Guerrero)
-        (8, 45, 56, 12, 0, 0, 0, 0, 0),      # Arco del Pantano (Arquero)
-        (9, 55, 0, 15, 60, 0, 0, 0, 0),      # Báculo Tóxico (Mago)
-
-        # === 🟢 NIVEL 2: ARMAS REFINADAS (Zonas 4 a 6) ===
-        # --- ZONA 4: Templo del Fuego ---
-        (10, 110, 75, 30, 0, 5, 3, 0, 0),    # Espadón Ígneo (Guerrero)
-        (11, 70, 78, 18, 0, 8, 6, 0, 0),     # Arco de Llamas (Arquero)
-        (12, 85, 0, 22, 85, 6, 4, 0, 0),     # Cetro de Ifrit (Mago)
-        # --- ZONA 5: Bosque Helado ---
-        (13, 160, 100, 42, 0, 7, 4, 0, 0),   # Hacha Glacial (Guerrero)
-        (14, 100, 104, 25, 0, 11, 9, 0, 0),  # Arco Glacial (Arquero)
-        (15, 125, 0, 32, 110, 9, 6, 0, 0),   # Báculo de Escarcha (Mago)
-        # --- ZONA 6: Desierto Carmesí ---
-        (16, 220, 130, 55, 0, 10, 6, 0, 0),  # Cimitarra Carmesí (Guerrero)
-        (17, 140, 134, 35, 0, 15, 12, 0, 0), # Arco del Desierto (Arquero)
-        (18, 175, 0, 42, 145, 12, 8, 0, 0),  # Báculo de Arena (Mago)
-
-        # === 🔵 NIVEL 3: ARMAS ÉPICAS (Zonas 7 a 9) ===
-        # --- ZONA 7: Montaña del Trueno ---
-        (19, 300, 165, 70, 0, 12, 8, 5, 0),  # Mandoble del Trueno (Guerrero)
-        (20, 190, 170, 45, 0, 18, 16, 8, 0), # Arco del Wyvern (Arquero)
-        (21, 240, 0, 55, 180, 14, 10, 6, 0), # Báculo del Rayo (Mago)
-        # --- ZONA 8: Catedral Maldita ---
-        (22, 400, 200, 90, 0, 15, 10, 8, 0), # Espada Profana (Guerrero)
-        (23, 250, 205, 58, 0, 22, 20, 12, 0),# Arco Sombrío (Arquero)
-        (24, 320, 0, 70, 220, 17, 13, 10, 0),# Báculo Oscuro (Mago)
-        # --- ZONA 9: Abismo Cristalino ---
-        (25, 550, 245, 115, 0, 18, 13, 12, 0),# Espada de Cristal (Guerrero)
-        (26, 350, 250, 75, 0, 26, 25, 18, 0),# Arco de Cristal (Arquero)
-        (27, 440, 0, 90, 270, 20, 16, 14, 0),# Báculo Prismático (Mago)
-
-        # === 🟣 NIVEL 4: ARMAS MITOLÓGICAS (Zona 10) ===
-        # --- ZONA 10: Ciudadela del Caos ---
-        (28, 750, 300, 150, 50, 22, 16, 15, 25), # Espada del Caos (Guerrero)
-        (29, 500, 310, 100, 40, 32, 30, 22, 35), # Arco del Abismo (Arquero)
-        (30, 620, 30, 120, 330, 25, 20, 18, 30)  # Báculo del Caos (Mago)
+        # Z1
+        (400, 20, 15, 5, 0, 0, 0, 0, 0.0), (401, 15, 0, 3, 18, 0, 0, 0, 0.0), (402, 10, 16, 2, 0, 0, 0, 0, 0.0),
+        # Z2
+        (420, 40, 35, 12, 0, 0, 0, 0, 0.0), (421, 30, 0, 8, 40, 0, 0, 0, 0.0), (422, 25, 36, 6, 0, 0, 0, 0, 0.0),
+        # Z3
+        (440, 70, 55, 20, 0, 0, 0, 0, 0.0), (441, 55, 0, 15, 60, 0, 0, 0, 0.0), (442, 45, 56, 12, 0, 0, 0, 0, 0.0),
+        # Z4
+        (450, 110, 75, 30, 0, 5, 3, 0, 0.0), (451, 85, 0, 22, 85, 6, 4, 0, 0.0), (452, 70, 78, 18, 0, 8, 6, 0, 0.0),
+        # Z5
+        (460, 160, 100, 42, 0, 7, 4, 0, 0.0), (461, 125, 0, 32, 110, 9, 6, 0, 0.0), (462, 100, 104, 25, 0, 11, 9, 0, 0.0),
+        # Z6
+        (470, 220, 130, 55, 0, 10, 6, 0, 0.0), (471, 175, 0, 42, 145, 12, 8, 0, 0.0), (472, 140, 134, 35, 0, 15, 12, 0, 0.0),
+        # Z7
+        (480, 300, 165, 70, 0, 12, 8, 5, 0.0), (481, 240, 0, 55, 180, 14, 10, 6, 0.0), (482, 190, 170, 45, 0, 18, 16, 8, 0.0),
+        # Z8
+        (490, 400, 200, 90, 0, 15, 10, 8, 0.0), (491, 320, 0, 70, 220, 17, 13, 10, 0.0), (492, 250, 205, 58, 0, 22, 20, 12, 0.0),
+        # Z9
+        (500, 550, 245, 115, 0, 18, 13, 12, 0.0), (501, 440, 0, 90, 270, 20, 16, 14, 0.0), (502, 350, 250, 75, 0, 26, 25, 18, 0.0),
+        # Z10
+        (510, 750, 300, 150, 50, 22, 16, 15, 0.25), (511, 620, 30, 120, 330, 25, 20, 18, 0.30), (512, 500, 310, 100, 40, 32, 30, 22, 0.35)
     ]
-    
-    # Insertamos de golpe todos los datos en la nueva estructura limpia
-    c.executemany("""
-        INSERT OR REPLACE INTO WeaponStats (WeaponID, HP, ATK, DF, MAG, Accuracy, Evasion, CritRate, CritDmg)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, armas_stats)
-    
+    c.executemany("INSERT OR REPLACE INTO WeaponStats VALUES (?,?,?,?,?,?,?,?,?)", armas_stats)
     conn.commit()
     conn.close()
-    print("📢 Base de datos: ¡Estadísticas de las 30 armas actualizadas y balanceadas!")
+    print("📢 Base de datos: ¡Estadísticas de armas balanceadas e indexadas!")
 
-def visitar_forja_armaduras(player_id):
-    # Códigos de color ANSI para la terminal
+def inicializar_stats_armaduras():
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute("DROP TABLE IF EXISTS ArmorStats")
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS ArmorStats (
+            ArmorID INTEGER PRIMARY KEY,
+            HP INTEGER DEFAULT 0,
+            ATK INTEGER DEFAULT 0,
+            DF INTEGER DEFAULT 0,
+            MAG INTEGER DEFAULT 0,
+            Accuracy INTEGER DEFAULT 0,
+            Evasion INTEGER DEFAULT 0,
+            CritRate INTEGER DEFAULT 0,
+            CritDmg REAL DEFAULT 0.0,
+            FOREIGN KEY(ArmorID) REFERENCES Items(ItemID)
+        )
+    """)
+    # Estadísticas para las 10 armaduras correspondientes a las zonas
+    armaduras_stats = [
+        (31, 30, 0, 5, 0, 0, 2, 0, 0.0),    # Armadura del Alfa (Z1)
+        (32, 60, 0, 12, 0, 0, 4, 0, 0.0),   # Armadura de Hierro (Z2)
+        (33, 100, 0, 22, 0, 0, 6, 0, 0.0),  # Armadura del Pantano (Z3)
+        (34, 150, 5, 35, 5, 0, 8, 0, 0.0),  # Armadura Ígnea (Z4)
+        (35, 210, 0, 50, 0, 0, 10, 0, 0.0), # Armadura Glacial (Z5)
+        (36, 280, 8, 68, 0, 5, 12, 2, 0.0), # Armadura Carmesí (Z6)
+        (37, 360, 0, 88, 10, 0, 15, 0, 0.0),# Armadura del Trueno (Z7)
+        (38, 450, 12, 110, 12, 5, 18, 4, 0.0),# Armadura Profana (Z8)
+        (39, 560, 0, 135, 0, 8, 22, 0, 0.0),# Armadura de Cristal (Z9)
+        (40, 700, 25, 170, 25, 12, 28, 5, 0.20)# Armadura del Caos (Z10)
+    ]
+    c.executemany("INSERT OR REPLACE INTO ArmorStats VALUES (?,?,?,?,?,?,?,?,?)", armaduras_stats)
+    conn.commit()
+    conn.close()
+    print("📢 Base de datos: ¡Estadísticas de armaduras añadidas!")
+
+
+# === UNIFICACIÓN DE CRAFTEO (SISTEMA DE PESTAÑAS IDÉNTICAS) ===
+def interfaz_forja_categoria(player_id, tipo_item):
     COLOR_VERDE = "\033[92m"
     COLOR_ROJO = "\033[91m"
     COLOR_RESET = "\033[0m"
@@ -457,55 +368,47 @@ def visitar_forja_armaduras(player_id):
         conn = sqlite3.connect(DB)
         c = conn.cursor()
         
-        # Traemos todas las recetas de ARMADURAS disponibles
-        # Nota: Asegúrate de que en tu tabla CraftingRecipes o la que uses para planos,
-        # los ResultItemID correspondan a los IDs de tus armaduras (del 31 al 60).
+        # Filtra dinámicamente según la pestaña ('Arma%' o 'Armadura%')
         c.execute("""
-            SELECT 
-                r.RecipeID, i_res.ItemName, r.ResultItemID, r.SuccessRate,
-                i_m1.ItemName, r.Material1ID, r.Qty1,
-                i_m2.ItemName, r.Material2ID, r.Qty2,
-                i_m3.ItemName, r.Material3ID, r.Qty3
+            SELECT r.RecipeID, i_res.ItemName, r.ResultItemID, r.SuccessRate,
+                   i_m1.ItemName, r.Material1ID, r.Qty1,
+                   i_m2.ItemName, r.Material2ID, r.Qty2,
+                   i_m3.ItemName, r.Material3ID, r.Qty3
             FROM CraftingRecipes r
             JOIN Items i_res ON r.ResultItemID = i_res.ItemID
             LEFT JOIN Items i_m1 ON r.Material1ID = i_m1.ItemID
             LEFT JOIN Items i_m2 ON r.Material2ID = i_m2.ItemID
             LEFT JOIN Items i_m3 ON r.Material3ID = i_m3.ItemID
-            WHERE r.ResultItemID BETWEEN 31 AND 60
-        """)
+            WHERE i_res.ItemType LIKE ?
+        """, (f"{tipo_item}%",))
         recetas = c.fetchall()
         
-        # Mapeamos el inventario actual del jugador {ItemID: Cantidad}
         c.execute("SELECT ItemID, Quantity FROM Inventory WHERE PlayerID = ?", (player_id,))
         inv_jugador = dict(c.fetchall())
         conn.close()
 
-        print("\n🛡️ === SASTRERÍA Y PLACAS DE FORJA ===")
+        print(f"\n🔨 === SECCIÓN: FORJA DE {tipo_item.upper()}S ===")
         if not recetas:
-            print("No hay planos ni recetas de armaduras disponibles en este momento.")
+            print("No hay recetas disponibles en esta categoría.")
             break
             
-        # PANTALLA 1: Listado de armaduras coloreado
+        # PESTAÑA PRINCIPAL: Lista completa de objetos
         for i, r in enumerate(recetas):
             _, name_res, _, _, _, m1_id, q1, _, m2_id, q2, _, m3_id, q3 = r
             
-            # Evaluamos en segundo plano si cumple las condiciones de materiales
             tengo_m1 = inv_jugador.get(m1_id, 0) >= q1 if m1_id else True
             tengo_m2 = inv_jugador.get(m2_id, 0) >= q2 if m2_id else True
             tengo_m3 = inv_jugador.get(m3_id, 0) >= q3 if m3_id else True
             
-            # Si tiene todo va en verde, si falta algo, en rojo
-            if tengo_m1 and tengo_m2 and tengo_m3:
-                color_armadura = COLOR_VERDE
-            else:
-                color_armadura = COLOR_ROJO
-                
-            print(f"{i+1}. {color_armadura}🛡️ {name_res}{COLOR_RESET}")
+            # Verde si tiene todo, Rojo si falta algún componente
+            color_item = COLOR_VERDE if (tengo_m1 and tengo_m2 and tengo_m3) else COLOR_ROJO
+            icono = "⚔️" if tipo_item == "Arma" else "🛡️"
+            print(f"{i+1}. {color_item}{icono} {name_res}{COLOR_RESET}")
         
-        print("0. Volver al menú de la forja")
+        print("0. Volver")
         sys.stdout.flush()
         
-        opc = input("\nSelecciona una armadura para ver sus detalles o forjarla: ")
+        opc = input(f"\nSelecciona una opción para inspeccionar materiales: ")
         if opc == "0":
             break
             
@@ -514,197 +417,61 @@ def visitar_forja_armaduras(player_id):
             r_elegida = recetas[idx]
             rec_id, name_res, id_res, rate, m1_name, m1_id, q1, m2_name, m2_id, q2, m3_name, m3_id, q3 = r_elegida
             
-            # PANTALLA 2: Vista detallada de la armadura seleccionada
-            print(f"\n📋 --- DETALLES DE ARMADURA: {name_res} ---")
-            print(f"Probabilidad de éxito: {rate}%")
+            # VISTA DETALLADA: Muestra requisitos solo al seleccionar
+            print(f"\n📋 --- DETALLES DE PRODUCCIÓN: {name_res} ---")
+            print(f"Probabilidad de éxito elemental: {rate}%")
             print("Materiales requeridos:")
             
-            # Validamos y mostramos las cantidades de cada ingrediente
             cant1 = inv_jugador.get(m1_id, 0) if m1_id else 0
             cant2 = inv_jugador.get(m2_id, 0) if m2_id else 0
             cant3 = inv_jugador.get(m3_id, 0) if m3_id else 0
             
-            tengo_m1 = cant1 >= q1 if m1_id else True
-            tengo_m2 = cant2 >= q2 if m2_id else True
-            tengo_m3 = cant3 >= q3 if m3_id else True
+            tengo_m1_det = cant1 >= q1 if m1_id else True
+            tengo_m2_det = cant2 >= q2 if m2_id else True
+            tengo_m3_det = cant3 >= q3 if m3_id else True
             
             if m1_id:
-                col = COLOR_VERDE if tengo_m1 else COLOR_ROJO
+                col = COLOR_VERDE if tengo_m1_det else COLOR_ROJO
                 print(f" - {col}{m1_name}: {cant1}/{q1}{COLOR_RESET}")
             if m2_id:
-                col = COLOR_VERDE if tengo_m2 else COLOR_ROJO
+                col = COLOR_VERDE if tengo_m2_det else COLOR_ROJO
                 print(f" - {col}{m2_name}: {cant2}/{q2}{COLOR_RESET}")
             if m3_id:
-                col = COLOR_VERDE if tengo_m3 else COLOR_ROJO
+                col = COLOR_VERDE if tengo_m2_det else COLOR_ROJO
                 print(f" - {col}{m3_name}: {cant3}/{q3}{COLOR_RESET}")
                 
-            print("\n1. Intentar forjar armadura")
+            print("\n1. Intentar fabricar pieza")
             print("0. Volver al listado")
             sys.stdout.flush()
             
             accion = input("¿Qué deseas hacer?: ")
-            
             if accion == "1":
-                if tengo_m1 and tengo_m2 and tengo_m3:
+                if tengo_m1_det and tengo_m2_det and tengo_m3_det:
                     conn = sqlite3.connect(DB)
                     c = conn.cursor()
                     
-                    # Consumir materiales del inventario
                     if m1_id: c.execute("UPDATE Inventory SET Quantity = Quantity - ? WHERE PlayerID = ? AND ItemID = ?", (q1, player_id, m1_id))
                     if m2_id: c.execute("UPDATE Inventory SET Quantity = Quantity - ? WHERE PlayerID = ? AND ItemID = ?", (q2, player_id, m2_id))
                     if m3_id: c.execute("UPDATE Inventory SET Quantity = Quantity - ? WHERE PlayerID = ? AND ItemID = ?", (q3, player_id, m3_id))
-                    
                     c.execute("DELETE FROM Inventory WHERE Quantity <= 0")
                     
-                    print(f"\n🔥 Hilando y remachando las piezas para crear {name_res}...")
-                    
+                    print(f"\n🔥 Trabajando los elementos en el yunque para {name_res}...")
                     if random.randint(1, 100) <= rate:
                         c.execute("""
                             INSERT INTO Inventory (PlayerID, ItemID, Quantity)
                             VALUES (?, ?, 1)
                             ON CONFLICT(PlayerID, ItemID) DO UPDATE SET Quantity = Quantity + 1
                         """, (player_id, id_res))
-                        print(f"✨ ¡ÉXITO! Has forjado tu nueva armadura: ¡{name_res}! 🛡️")
+                        print(f"✨ ¡ÉXITO! Has obtenido tu recompensa: ¡{name_res}! ✨")
                     else:
-                        print("💥 ¡FALLO! Los materiales se dañaron durante el templado del metal. Los perdiste...")
-                        
+                        print("💥 ¡FALLO! Los materiales se destruyeron por un desbalance de temperatura.")
+                    
                     conn.commit()
                     conn.close()
                 else:
-                    print("❌ No puedes forjar esta armadura. Te faltan materiales.")
-            elif accion == "0":
-                continue
+                    print("❌ Recursos insuficientes en tu bolsa de viaje.")
         else:
-            print("❌ Selección inválida.")
-        sys.stdout.flush()
-
-
-def visitar_forja_armas(player_id):
-    # Códigos de color ANSI para la terminal
-    COLOR_VERDE = "\033[92m"
-    COLOR_ROJO = "\033[91m"
-    COLOR_RESET = "\033[0m"
-
-    while True:
-        conn = sqlite3.connect(DB)
-        c = conn.cursor()
-        
-        # Traemos todas las recetas disponibles
-        c.execute("""
-            SELECT 
-                r.RecipeID, i_res.ItemName, r.ResultItemID, r.SuccessRate,
-                i_m1.ItemName, r.Material1ID, r.Qty1,
-                i_m2.ItemName, r.Material2ID, r.Qty2,
-                i_m3.ItemName, r.Material3ID, r.Qty3
-            FROM CraftingRecipes r
-            JOIN Items i_res ON r.ResultItemID = i_res.ItemID
-            LEFT JOIN Items i_m1 ON r.Material1ID = i_m1.ItemID
-            LEFT JOIN Items i_m2 ON r.Material2ID = i_m2.ItemID
-            LEFT JOIN Items i_m3 ON r.Material3ID = i_m3.ItemID
-        """)
-        recetas = c.fetchall()
-        
-        # Mapeamos el inventario actual del jugador {ItemID: Cantidad}
-        c.execute("SELECT ItemID, Quantity FROM Inventory WHERE PlayerID = ?", (player_id,))
-        inv_jugador = dict(c.fetchall())
-        conn.close()
-
-        print("\n🔨 === FORJA DE VILLA AMANECER ===")
-        if not recetas:
-            print("No hay planos ni recetas de forja disponibles en este momento.")
-            break
-            
-        # PANTALLA 1: Listado de armas coloreado
-        for i, r in enumerate(recetas):
-            _, name_res, _, _, _, m1_id, q1, _, m2_id, q2, _, m3_id, q3 = r
-            
-            # Evaluamos en segundo plano si cumple las condiciones
-            tengo_m1 = inv_jugador.get(m1_id, 0) >= q1 if m1_id else True
-            tengo_m2 = inv_jugador.get(m2_id, 0) >= q2 if m2_id else True
-            tengo_m3 = inv_jugador.get(m3_id, 0) >= q3 if m3_id else True
-            
-            # Si tiene todo va en verde, si no, en rojo
-            if tengo_m1 and tengo_m2 and tengo_m3:
-                color_arma = COLOR_VERDE
-            else:
-                color_arma = COLOR_ROJO
-                
-            print(f"{i+1}. {color_arma}⚔️ {name_res}{COLOR_RESET}")
-        
-        print("0. Salir de la Forja")
-        sys.stdout.flush()
-        
-        opc = input("\nSelecciona un arma para ver sus detalles o forjarla: ")
-        if opc == "0":
-            break
-            
-        if opc.isdigit() and 0 < int(opc) <= len(recetas):
-            idx = int(opc) - 1
-            r_elegida = recetas[idx]
-            rec_id, name_res, id_res, rate, m1_name, m1_id, q1, m2_name, m2_id, q2, m3_name, m3_id, q3 = r_elegida
-            
-            # PANTALLA 2: Vista detallada del arma seleccionada
-            print(f"\n📋 --- DETALLES DE FORJA: {name_res} ---")
-            print(f"Probabilidad de éxito: {rate}%")
-            print("Materiales requeridos:")
-            
-            # Validamos y mostramos el estado de cada ingrediente individualmente
-            cant1 = inv_jugador.get(m1_id, 0) if m1_id else 0
-            cant2 = inv_jugador.get(m2_id, 0) if m2_id else 0
-            cant3 = inv_jugador.get(m3_id, 0) if m3_id else 0
-            
-            tengo_m1 = cant1 >= q1 if m1_id else True
-            tengo_m2 = cant2 >= q2 if m2_id else True
-            tengo_m3 = cant3 >= q3 if m3_id else True
-            
-            if m1_id:
-                col = COLOR_VERDE if tengo_m1 else COLOR_ROJO
-                print(f" - {col}{m1_name}: {cant1}/{q1}{COLOR_RESET}")
-            if m2_id:
-                col = COLOR_VERDE if tengo_m2 else COLOR_ROJO
-                print(f" - {col}{m2_name}: {cant2}/{q2}{COLOR_RESET}")
-            if m3_id:
-                col = COLOR_VERDE if tengo_m3 else COLOR_ROJO
-                print(f" - {col}{m3_name}: {cant3}/{q3}{COLOR_RESET}")
-                
-            print("\n1. Intentar forjar arma")
-            print("0. Volver al listado")
-            sys.stdout.flush()
-            
-            accion = input("¿Qué deseas hacer?: ")
-            
-            if accion == "1":
-                if tengo_m1 and tengo_m2 and tengo_m3:
-                    conn = sqlite3.connect(DB)
-                    c = conn.cursor()
-                    
-                    # Consumir materiales
-                    if m1_id: c.execute("UPDATE Inventory SET Quantity = Quantity - ? WHERE PlayerID = ? AND ItemID = ?", (q1, player_id, m1_id))
-                    if m2_id: c.execute("UPDATE Inventory SET Quantity = Quantity - ? WHERE PlayerID = ? AND ItemID = ?", (q2, player_id, m2_id))
-                    if m3_id: c.execute("UPDATE Inventory SET Quantity = Quantity - ? WHERE PlayerID = ? AND ItemID = ?", (q3, player_id, m3_id))
-                    
-                    c.execute("DELETE FROM Inventory WHERE Quantity <= 0")
-                    
-                    print(f"\n🔥 El herrero golpea el yunque con los materiales para forjar {name_res}...")
-                    
-                    if random.randint(1, 100) <= rate:
-                        c.execute("""
-                            INSERT INTO Inventory (PlayerID, ItemID, Quantity)
-                            VALUES (?, ?, 1)
-                            ON CONFLICT(PlayerID, ItemID) DO UPDATE SET Quantity = Quantity + 1
-                        """, (player_id, id_res))
-                        print(f"✨ ¡ÉXITO ROTUNDO! Has obtenido tu nueva arma: ¡{name_res}! ✨")
-                    else:
-                        print("💥 ¡FALLO EN LA FORJA! El metal se quebró debido a la presión. Perdiste los materiales...")
-                        
-                    conn.commit()
-                    conn.close()
-                else:
-                    print("❌ No puedes forjar este objeto. Te faltan materiales.")
-            elif accion == "0":
-                continue
-        else:
-            print("❌ Selección inválida.")
+            print("❌ Selección fuera de rango.")
         sys.stdout.flush()
 
 def visitar_forja(player_id):
@@ -716,11 +483,10 @@ def visitar_forja(player_id):
         sys.stdout.flush()
         
         opc = input("¿Qué sección deseas visitar?: ")
-        
         if opc == "1":
-            visitar_forja_armas(player_id) # La forja de armas original
+            interfaz_forja_categoria(player_id, "Arma")
         elif opc == "2":
-            visitar_forja_armaduras(player_id) # La nueva sección
+            interfaz_forja_categoria(player_id, "Armadura")
         elif opc == "0":
             break
         else:
@@ -733,8 +499,7 @@ def obtener_datos_jugador(player_id):
     c = conn.cursor()
     c.execute("""
         SELECT Name, HP, MaxHP, Ryos, ATK, DEF, MAG, Level, XP, CurrentZone, MaxZone, CritRate, CritDmg, Accuracy, Evasion
-        FROM Players
-        WHERE PlayerID = ?
+        FROM Players WHERE PlayerID = ?
     """, (player_id,))
     datos = c.fetchone()
     conn.close()
@@ -749,7 +514,6 @@ def actualizar_hp_ryos_xp(player_id, hp, ryos, xp):
 
 def subir_nivel_si_aplica(player_id, xp_actual, level_actual):
     xp_necesaria = 100 * level_actual
-    
     if xp_actual >= xp_necesaria:
         nuevo_level = level_actual + 1
         xp_restante = xp_actual - xp_necesaria
@@ -759,10 +523,7 @@ def subir_nivel_si_aplica(player_id, xp_actual, level_actual):
         c.execute("SELECT ATK, DEF, MAG, MaxHP FROM Players WHERE PlayerID =?", (player_id,))
         atk, df, mag, max_hp = c.fetchone()
         
-        atk += 2
-        df += 1
-        mag += 1
-        max_hp += 10
+        atk += 2; df += 1; mag += 1; max_hp += 10
         
         c.execute("""
             UPDATE Players 
@@ -843,36 +604,33 @@ def actualizar_tienda_db():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
     
-    # Insertar el Consumible ID 100 inicial que faltaba en las tablas
     c.execute("INSERT OR IGNORE INTO Items VALUES (100, 'Poción de Supervivencia', 'Consumible', 10)")
     c.execute("INSERT OR IGNORE INTO Items VALUES (101, 'Poción de Maná', 'Consumible', 25)")
     
-    # Armas Nv 1 (100 Ryos)
     c.execute("INSERT OR IGNORE INTO Items VALUES (110, 'Espada Larga', 'Arma Guerrero', 100)")
     c.execute("INSERT OR IGNORE INTO Items VALUES (111, 'Báculo de Aprendiz', 'Arma Mago', 100)")
     c.execute("INSERT OR IGNORE INTO Items VALUES (112, 'Arco de Caza', 'Arma Arquero', 100)")
-    c.execute("INSERT OR IGNORE INTO WeaponStats VALUES (110, 8, 0)")
-    c.execute("INSERT OR IGNORE INTO WeaponStats VALUES (111, 0, 10)")
-    c.execute("INSERT OR IGNORE INTO WeaponStats VALUES (112, 9, 0)")
     
-    # Armas Nv 10 (500 Ryos)
+    # REPARADO: Se especifican las columnas para evitar errores posicionales con la tabla de 9 columnas
+    c.execute("INSERT OR IGNORE INTO WeaponStats (WeaponID, ATK, MAG) VALUES (110, 8, 0)")
+    c.execute("INSERT OR IGNORE INTO WeaponStats (WeaponID, ATK, MAG) VALUES (111, 0, 10)")
+    c.execute("INSERT OR IGNORE INTO WeaponStats (WeaponID, ATK, MAG) VALUES (112, 9, 0)")
+    
     c.execute("INSERT OR IGNORE INTO Items VALUES (120, 'Espadón de Acero (Nv 10)', 'Arma Guerrero', 500)")
     c.execute("INSERT OR IGNORE INTO Items VALUES (121, 'Báculo de Rubí (Nv 10)', 'Arma Mago', 500)")
     c.execute("INSERT OR IGNORE INTO Items VALUES (122, 'Arco Compuesto (Nv 10)', 'Arma Arquero', 500)")
-    c.execute("INSERT OR IGNORE INTO WeaponStats VALUES (120, 25, 0)")
-    c.execute("INSERT OR IGNORE INTO WeaponStats VALUES (121, 0, 30)")
-    c.execute("INSERT OR IGNORE INTO WeaponStats VALUES (122, 28, 0)")
+    
+    c.execute("INSERT OR IGNORE INTO WeaponStats (WeaponID, ATK, MAG) VALUES (120, 25, 0)")
+    c.execute("INSERT OR IGNORE INTO WeaponStats (WeaponID, ATK, MAG) VALUES (121, 0, 30)")
+    c.execute("INSERT OR IGNORE INTO WeaponStats (WeaponID, ATK, MAG) VALUES (122, 28, 0)")
     
     conn.commit()
     conn.close()
 
 def visitar_tienda(player_id):
     while True:
-        conn = sqlite3.connect(DB)
-        c = conn.cursor()
-        c.execute("SELECT Level, Ryos FROM Players WHERE PlayerID =?", (player_id,))
-        nivel, ryos = c.fetchone()
-        conn.close()
+        datos = obtener_datos_jugador(player_id)
+        nivel, ryos = datos[7], datos[3]
 
         print(f"\n🏪 === TIENDA DE VILLA AMANECER === (Tus Ryos: {ryos})")
         print("1. Comprar Objetos y Armas")
@@ -881,7 +639,6 @@ def visitar_tienda(player_id):
         sys.stdout.flush()
         
         opc = input("Elige una opción: ")
-        
         if opc == "1":
             comprar_tienda(player_id, nivel, ryos)
         elif opc == "2":
@@ -928,7 +685,6 @@ def comprar_tienda(player_id, nivel, ryos):
 def vender_tienda(player_id):
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    
     c.execute("""
         SELECT inv.ItemID, i.ItemName, inv.Quantity, i.Price
         FROM Inventory inv
@@ -967,70 +723,108 @@ def vender_tienda(player_id):
                 print("❌ Cantidad inválida.")
     conn.close()
 
-def gestionar_equipo(player_id):
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-    c.execute("""
-        SELECT i.ItemID, i.ItemName FROM Inventory inv
-        JOIN Items i ON inv.ItemID = i.ItemID
-        WHERE inv.PlayerID =? AND (i.ItemType LIKE 'Arma%')
-    """, (player_id,))
-    armas = c.fetchall()
-    
-    print("\n⚔️ Gestión de Equipo:")
-    if not armas:
-        print("No tienes armas en tu inventario.")
-        conn.close()
-        return
 
-    for i, (id, nombre) in enumerate(armas):
-        print(f"{i+1}. {nombre}")
+# === REESTRUCTURACIÓN COMPLETA DE EQUIPAMIENTO ===
+def gestionar_equipo(player_id):
+    while True:
+        print("\n🎒 === GESTIÓN DE EQUIPO ===")
+        print("1. Equipar Arma ⚔️")
+        print("2. Equipar Armadura 🛡️")
+        print("0. Volver")
+        sys.stdout.flush()
         
-    opc = input("Selecciona arma a equipar (o 0 para cancelar): ")
-    if opc != "0" and opc.isdigit():
-        idx = int(opc) - 1
-        if 0 <= idx < len(armas):
-            item_id = armas[idx][0]
-            c.execute("UPDATE Players SET EquipWeapon =? WHERE PlayerID =?", (item_id, player_id))
-            conn.commit()
-            print("🛡️ Arma equipada con éxito.")
+        opc = input("¿Qué deseas gestionar?: ")
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+        
+        if opc == "1":
+            c.execute("""
+                SELECT i.ItemID, i.ItemName FROM Inventory inv
+                JOIN Items i ON inv.ItemID = i.ItemID
+                WHERE inv.PlayerID = ? AND i.ItemType LIKE 'Arma%' AND inv.Quantity > 0
+            """, (player_id,))
+            armas = c.fetchall()
+            if not armas:
+                print("No tienes armas en tu inventario.")
+            else:
+                for i, (id_item, nombre) in enumerate(armas):
+                    print(f"{i+1}. {nombre}")
+                sel = input("Selecciona el arma a equipar (0 para cancelar): ")
+                if sel.isdigit() and 0 < int(sel) <= len(armas):
+                    item_id = armas[int(sel)-1][0]
+                    c.execute("UPDATE Players SET EquipWeapon = ? WHERE PlayerID = ?", (item_id, player_id))
+                    conn.commit()
+                    print("⚔️ Arma equipada con éxito.")
+                    
+        elif opc == "2":
+            c.execute("""
+                SELECT i.ItemID, i.ItemName FROM Inventory inv
+                JOIN Items i ON inv.ItemID = i.ItemID
+                WHERE inv.PlayerID = ? AND i.ItemType LIKE 'Armadura%' AND inv.Quantity > 0
+            """, (player_id,))
+            armaduras = c.fetchall()
+            if not armaduras:
+                print("No tienes armaduras en tu inventario.")
+            else:
+                for i, (id_item, nombre) in enumerate(armaduras):
+                    print(f"{i+1}. {nombre}")
+                sel = input("Selecciona la armadura a equipar (0 para cancelar): ")
+                if sel.isdigit() and 0 < int(sel) <= len(armaduras):
+                    item_id = armaduras[int(sel)-1][0]
+                    c.execute("UPDATE Players SET EquipArmor = ? WHERE PlayerID = ?", (item_id, player_id))
+                    conn.commit()
+                    print("🛡️ Armadura equipada con éxito.")
+                    
+        elif opc == "0":
+            conn.close()
+            break
         else:
             print("❌ Opción inválida.")
-    conn.close()
+        conn.close()
 
-def obtener_poder_total(player_id):
+
+# === ENLACE ESTADÍSTICO DE COMBATE INTEGRADO ===
+def obtener_stats_completas(player_id):
     conn = sqlite3.connect(DB)
     c = conn.cursor()
     c.execute("""
-        SELECT p.ATK, p.MAG, p.EquipWeapon, w.AtkBonus, w.MagBonus 
-        FROM Players p
-        LEFT JOIN WeaponStats w ON p.EquipWeapon = w.ItemID
-        WHERE p.PlayerID =?
+        SELECT HP, MaxHP, ATK, DEF, MAG, CritRate, CritDmg, Accuracy, Evasion, EquipWeapon, EquipArmor 
+        FROM Players WHERE PlayerID = ?
     """, (player_id,))
     res = c.fetchone()
-    if not res: 
+    if not res:
         conn.close()
-        return 0, 0
-    atk_base, mag_base, weapon_id, atk_bonus, mag_bonus = res
+        return None
+    hp, max_hp, atk, df, mag, crit_rate, crit_dmg, acc, eva, eq_weapon, eq_armor = res
     
-    atk_total = atk_base + (atk_bonus if atk_bonus else 0)
-    mag_total = mag_base + (mag_bonus if mag_bonus else 0)
+    if eq_weapon:
+        c.execute("SELECT HP, ATK, DF, MAG, Accuracy, Evasion, CritRate, CritDmg FROM WeaponStats WHERE WeaponID = ?", (eq_weapon,))
+        w = c.fetchone()
+        if w:
+            max_hp += w[0]; atk += w[1]; df += w[2]; mag += w[3]; acc += w[4]; eva += w[5]; crit_rate += w[6]; crit_dmg += w[7]
+            
+    if eq_armor:
+        c.execute("SELECT HP, ATK, DF, MAG, Accuracy, Evasion, CritRate, CritDmg FROM ArmorStats WHERE ArmorID = ?", (eq_armor,))
+        a = c.fetchone()
+        if a:
+            max_hp += a[0]; atk += a[1]; df += a[2]; mag += a[3]; acc += a[4]; eva += a[5]; crit_rate += a[6]; crit_dmg += a[7]
+            
     conn.close()
-    return atk_total, mag_total
+    return {
+        "hp": hp, "max_hp": max_hp, "atk": atk, "def": df, "mag": mag,
+        "crit_rate": crit_rate, "crit_dmg": crit_dmg, "accuracy": acc, "evasion": eva
+    }
 
 def calcular_daño(atk_atacante, def_defensor, crit_rate, crit_dmg, acc_atacante, eva_defensor):
-    # Calcular si el golpe acierta o se esquiva
     chance_acierto = acc_atacante - eva_defensor
     if random.randint(1, 100) > chance_acierto:
-        return 0, False, True  # Devuelve: daño 0, NO es crítico, SÍ fue esquivado (MISS)
+        return 0, False, True 
     
-    # Si acierta, calcula daño normal/crítico
     daño = max(1, atk_atacante - def_defensor)
     es_critico = random.randint(1, 100) <= crit_rate
     if es_critico:
         daño = int(daño * crit_dmg)
     return daño, es_critico, False
-
 
 def consultar_pociones(player_id):
     conn = sqlite3.connect(DB)
@@ -1064,10 +858,11 @@ def intentar_curacion(player_id, hp, max_hp):
     sys.stdout.flush()
     return hp, True
 
+
+# === MOTOR DE COMBATE DINÁMICO ===
 def combate(player_id):
     datos = obtener_datos_jugador(player_id)
-    # Extraemos Accuracy y Evasion del jugador (p_acc, p_eva)
-    nombre, hp, max_hp, ryos, atk, df, mag, level, xp, current_zone, max_zone, player_crit_rate, player_crit_dmg, p_acc, p_eva = datos
+    nombre, hp, _, ryos, _, _, _, level, xp, current_zone, max_zone = datos[:11]
 
     if hp <= 0:
         print("\n💀 No puedes pelear sin vida. ¡Descansa en la ciudad primero!")
@@ -1080,9 +875,17 @@ def combate(player_id):
         sys.stdout.flush()
         return
 
-    # Extraemos Accuracy y Evasion del monstruo (enemigo_acc, enemigo_eva)
     monster_id, enemigo_nombre, enemigo_hp, enemigo_atk, enemigo_def, exp_reward, is_boss, enemigo_crit_rate, enemigo_crit_dmg, enemigo_acc, enemigo_eva = mob
-    atk_total, mag_total = obtener_poder_total(player_id)
+    
+    # REPARADO: El combate calcula sus variables usando el compilado total indexado (Base + Arma + Armadura)
+    stats_p = obtener_stats_completas(player_id)
+    max_hp_t = stats_p["max_hp"]
+    atk_t = stats_p["atk"]
+    def_t = stats_p["def"]
+    crit_rate_t = stats_p["crit_rate"]
+    crit_dmg_t = stats_p["crit_dmg"]
+    acc_t = stats_p["accuracy"]
+    eva_t = stats_p["evasion"]
 
     print(f"\n⚔️ ¡Un {enemigo_nombre} salvaje ha aparecido! (HP: {enemigo_hp} | ATK: {enemigo_atk})")
     mostrar_drops_monstruo(monster_id)
@@ -1090,8 +893,8 @@ def combate(player_id):
 
     while hp > 0 and enemigo_hp > 0:
         pociones_actuales = consultar_pociones(player_id)
-        print(f"\nTu HP: {hp}/{max_hp} | HP del {enemigo_nombre}: {enemigo_hp}")
-        print(f"1. Atacar con tu arma")
+        print(f"\nTu HP: {hp}/{max_hp_t} | HP del {enemigo_nombre}: {enemigo_hp}")
+        print(f"1. Atacar con tu equipo")
         print(f"2. Usar Poción ({pociones_actuales} restantes)")
         print("3. Huir")
         sys.stdout.flush()
@@ -1099,7 +902,7 @@ def combate(player_id):
 
         if acc == "1":
             # Turno del Jugador
-            daño_final, crit, esquivado = calcular_daño(atk_total, enemigo_def, player_crit_rate, player_crit_dmg, p_acc, enemigo_eva)
+            daño_final, crit, esquivado = calcular_daño(atk_t, enemigo_def, crit_rate_t, crit_dmg_t, acc_t, enemigo_eva)
             if esquivado:
                 print(f"💨 ¡MISS! El {enemigo_nombre} ha esquivado tu golpe.")
             else:
@@ -1112,8 +915,8 @@ def combate(player_id):
             if enemigo_hp <= 0: 
                 break
                 
-            # Turno del Monstruo
-            daño_recibido, crit_enemigo, esquivado_player = calcular_daño(enemigo_atk, df, enemigo_crit_rate, enemigo_crit_dmg, enemigo_acc, p_eva)
+            # Turno del Monstruo (Ahora mitigado correctamente por la DEF total con armaduras)
+            daño_recibido, crit_enemigo, esquivado_player = calcular_daño(enemigo_atk, def_t, enemigo_crit_rate, enemigo_crit_dmg, enemigo_acc, eva_t)
             if esquivado_player:
                 print(f"🛡️ ¡MISS! Has esquivado el ataque del {enemigo_nombre}.")
             else:
@@ -1124,10 +927,9 @@ def combate(player_id):
                     print(f"⚠️ El {enemigo_nombre} te devuelve el golpe y te hace {daño_recibido} de daño.")
 
         elif acc == "2":  
-            hp, exito = intentar_curacion(player_id, hp, max_hp)
+            hp, exito = intentar_curacion(player_id, hp, max_hp_t)
             if exito:
-                # El monstruo ataca, pero verificamos si esquivas
-                daño_enemigo, crit_enemigo, esquivado_player = calcular_daño(enemigo_atk, df, enemigo_crit_rate, enemigo_crit_dmg, enemigo_acc, p_eva)
+                daño_enemigo, crit_enemigo, esquivado_player = calcular_daño(enemigo_atk, def_t, enemigo_crit_rate, enemigo_crit_dmg, enemigo_acc, eva_t)
                 if esquivado_player:
                     print(f"🛡️ El {enemigo_nombre} intentó atacarte mientras te curabas, ¡pero lo esquivaste!")
                 else:
@@ -1144,7 +946,7 @@ def combate(player_id):
                 return
             else:
                 print("❌ ¡Intentaste huir pero el enemigo te bloqueó el paso!")
-                daño_enemigo, crit_enemigo, esquivado_player = calcular_daño(enemigo_atk, df, enemigo_crit_rate, enemigo_crit_dmg, enemigo_acc, p_eva)
+                daño_enemigo, crit_enemigo, esquivado_player = calcular_daño(enemigo_atk, def_t, enemigo_crit_rate, enemigo_crit_dmg, enemigo_acc, eva_t)
                 if esquivado_player:
                     print(f"🛡️ El {enemigo_nombre} intentó golpearte por la espalda, ¡pero lo esquivaste justo a tiempo!")
                 else:
@@ -1206,7 +1008,6 @@ def visitar_ciudad(player_id):
         datos = obtener_datos_jugador(player_id)
         nombre, hp, max_hp, ryos, atk, df, mag, level, xp, current_zone, max_zone = datos[:11]
 
-        # Menú Principal adaptado a tus nuevas especificaciones
         print(f"\n=== MENÚ PRINCIPAL | {nombre} | HP: {hp}/{max_hp} | ZONA: {current_zone} ===")
         print("1. Entrar a la Zona Segura 🛡️")
         print("2. Buscar Combate (Salir a las afueras) ⚔️")
@@ -1217,9 +1018,7 @@ def visitar_ciudad(player_id):
         sys.stdout.flush()
 
         opcion = input("Elige una opción: ")
-        
         if opcion == "1":
-            # === SUBMENÚ: ZONA SEGURA ===
             while True:
                 print(f"\n--- 🏡 ZONA SEGURA (Villa Amanecer) | Ryos: {ryos} ---")
                 print("1. Descansar en la Posada (Recuperar HP gratis 💤)")
@@ -1229,15 +1028,14 @@ def visitar_ciudad(player_id):
                 sys.stdout.flush()
                 
                 sub_opc = input("¿Qué deseas hacer en la zona segura?: ")
-                
                 if sub_opc == "1":
                     hp = max_hp
                     actualizar_hp_ryos_xp(player_id, hp, ryos, xp)
                     print("\n💤 Descansando... ¡Tu salud se ha restablecido por completo!")
                 elif sub_opc == "2":
                     visitar_tienda(player_id)
-                    # Actualizamos Ryos localmente por si compró o vendió algo en la tienda
-                    *_, ryos, _, _, _, _, _, _, _, _, _ = obtener_datos_jugador(player_id)
+                    datos_act = obtener_datos_jugador(player_id)
+                    ryos = datos_act[3] # REPARADO: Mapeo directo y seguro de índice sin despaquetados conflictivos
                 elif sub_opc == "3":
                     visitar_forja(player_id)
                 elif sub_opc == "4":
@@ -1311,7 +1109,6 @@ def crear_personaje():
     VALUES (?,?,?,?,?,?,?, 1, 0, 1, 1, 5, 1.5, 10, 10, 10, 80, 5)
     """, (nombre, hp, hp, 100, atk, df, mag))
 
-
     last_id = c.lastrowid
     c.execute("INSERT OR IGNORE INTO PlayerLocation VALUES (?, 1)", (last_id,))
     c.execute("INSERT OR IGNORE INTO Inventory (PlayerID, ItemID, Quantity) VALUES (?, 100, 5)", (last_id,))
@@ -1322,11 +1119,14 @@ def crear_personaje():
     conn.close()
     visitar_ciudad(last_id)
 
+
 if __name__ == "__main__":
     init_db()
-    actualizar_tienda_db()
-    inicializar_stats_forja()
+    inicializar_stats_forja()     # 1º Creamos la tabla de armas
+    inicializar_stats_armaduras() # 2º Creamos la tabla de armaduras
+    actualizar_tienda_db()        # 3º Ahora sí metemos las armas de la tienda sin error
     print("=== ¡Bienvenido a JuegoNew RPG! ===")
     sys.stdout.flush()
     crear_personaje()
+
 
